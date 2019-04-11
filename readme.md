@@ -6,8 +6,10 @@ codeceptjs-rphelper is [CodeceptJS](https://codecept.io/) helper which is to pub
 NPM package: https://www.npmjs.com/package/codeceptjs-rphelper
 
 ### Installation
-`npm install reportportal-client
-npm install codeceptjs-rphelper`
+```
+npm install reportportal-client
+npm install codeceptjs-rphelper
+```
 
 ### Configuration
 
