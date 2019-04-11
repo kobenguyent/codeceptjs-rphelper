@@ -84,10 +84,10 @@ class ReportPortalHelper extends Helper {
             }, {
                     name: fileName,
                     type: 'image/png',
-                    content: fs.readFileSync(path.join(__dirname.replace('helper', 'output'), fileName)),
+                    content: fs.readFileSync(path.join(global.output_dir, fileName)),
                 });
 
-            fs.unlinkSync(path.join(__dirname.replace('helper', 'output'), fileName));
+            fs.unlinkSync(path.join(global.output_dir, fileName));
         }
 
         rpClient.finishTestItem(itemObj.tempId, {
