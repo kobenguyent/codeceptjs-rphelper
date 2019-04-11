@@ -92,4 +92,4 @@ Success finish launch 65ndx5jucolqsp
 ```
 
 ### Screenshot
-![ReportPortal Test](https://pasteboard.co/I9EePZX.png)
+![ReportPortal Test](https://i.ibb.co/Qm52G0n/Screenshot-2019-04-11-at-15-57-40.png)
