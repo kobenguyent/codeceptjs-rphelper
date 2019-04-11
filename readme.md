@@ -1,4 +1,4 @@
-[![npm version](https://badge.fury.io/js/codeceptjs-rphelper.svg)](https://badge.fury.io/js/codeceptjs-rphelper)
+[![NPM](https://nodei.co/npm/codeceptjs-rphelper.png?compact=true)](https://nodei.co/npm/codeceptjs-rphelper/)
 
 # codeceptjs-rphelper
 CodeceptJS Reportportal helper to integrate the ReportPortal
