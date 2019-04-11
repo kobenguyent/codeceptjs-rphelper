@@ -1,7 +1,7 @@
 # codeceptjs-rphelper
 CodeceptJS Reportportal helper to integrate the ReportPortal
 
-codeceptjs-rphelper is [CodeceptJS](https://codecept.io/) helper which is to publish tests results on [ReportPortal](https://reportportal.io/) after execution.
+codeceptjs-rphelper is a [CodeceptJS](https://codecept.io/) helper which can publish tests results on [ReportPortal](https://reportportal.io/) after execution.
 
 NPM package: https://www.npmjs.com/package/codeceptjs-rphelper
 
@@ -27,8 +27,6 @@ Example:
       projectName: 'YOUR_PROJECT',
       debug: false
     }
-    }
-   }
 }
 ```
 
