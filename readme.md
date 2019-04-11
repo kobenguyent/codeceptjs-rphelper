@@ -90,3 +90,6 @@ Success finish item 65ndx5jucoltbj
 Finish launch 65ndx5jucolqsp
 Success finish launch 65ndx5jucolqsp
 ```
+
+### Screenshot
+![ReportPortal Test](https://pasteboard.co/I9EePZX.png)
