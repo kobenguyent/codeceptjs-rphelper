@@ -3,6 +3,7 @@ const fs = require('fs');
 const path = require('path');
 const event = require('codeceptjs').event;
 const container = require('codeceptjs').container;
+const util = require('util');
 const supportedHelpers = [
     'Mochawesome',
     'WebDriverIO',
@@ -17,6 +18,7 @@ let itemObj;
 let fileName;
 let stepInfo;
 let rpClient;
+let logFile;
 
 event.dispatcher.on(event.test.failed, (test, err) => {
     test.err = err.message;
@@ -47,6 +49,7 @@ class ReportPortalHelper extends Helper {
         }
 
         fileName = `${this.now()}_failed.png`;
+        logFile = `${this.now()}_browser.logs.txt`;
         await this.helper.saveScreenshot(fileName);
         await this._updateStep(stepInfo, 'FAILED');
     }
@@ -77,6 +80,9 @@ class ReportPortalHelper extends Helper {
 
     async _finishTestItem(launchObj, itemObj, step, status) {
         if (status === 'FAILED') {
+            const browserLogs = await this.helper.grabBrowserLogs();
+            fs.writeFileSync(path.join(global.output_dir, logFile), util.inspect(browserLogs));
+
             rpClient.sendLog(itemObj.tempId, {
                 level: 'error',
                 message: `[FAILED STEP] ${step.actor} ${step.name} , ${step.args.join(',')} due to ${this.errMsg}`,
@@ -88,6 +94,18 @@ class ReportPortalHelper extends Helper {
                 });
 
             fs.unlinkSync(path.join(global.output_dir, fileName));
+
+            rpClient.sendLog(itemObj.tempId, {
+                level: 'trace',
+                message: `[BROWSER LOGS FOR FAILED STEP] ${step.actor} ${step.name} , ${step.args.join(',')} due to ${this.errMsg}`,
+                time: step.startTime
+            }, {
+                    name: logFile,
+                    type: 'text/plain',
+                    content: fs.readFileSync(path.join(global.output_dir, logFile)),
+                });
+            
+            fs.unlinkSync(path.join(global.output_dir, logFile));
         }
 
         rpClient.finishTestItem(itemObj.tempId, {
