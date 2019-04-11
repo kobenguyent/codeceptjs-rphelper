@@ -1,0 +1,23 @@
+{
+  "name": "codeceptjs-rphelper",
+  "version": "1.0.0",
+  "description": "Reportportal helper for Codecept JS tests",
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com/PeterNgTr/codeceptjs-rphelper.git"
+  },
+  "keywords": [
+    "codeceptJS",
+    "codeceptjs",
+    "browserstack",
+    "codeceptjs-reportportal",
+    "codeceptjs-rphelper"
+  ],
+  "author": "Thanh Nguyen <peter.nguyentr@gmail.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/PeterNgTr/codeceptjs-rphelper/issues"
+  },
+  "homepage": "https://github.com/PeterNgTr/codeceptjs-rphelper#readme",
+  "main": "index.js"
+}
