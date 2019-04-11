@@ -15,7 +15,7 @@ This helper should be added in codecept.json/codecept.conf.js
 
 Example:
 
-```json
+```js
 {
    helpers: {
     ReportPortalHelper: {
