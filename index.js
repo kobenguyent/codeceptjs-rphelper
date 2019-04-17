@@ -63,7 +63,7 @@ class ReportPortalHelper extends Helper {
         });
 
         return rpClient.startLaunch({
-            name: suiteTitle,
+            name: this.config.launchName || suiteTitle,
             start_time: rpClient.helpers.now(),
             description: suiteTitle
         });
