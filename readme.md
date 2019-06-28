@@ -9,7 +9,6 @@ NPM package: https://www.npmjs.com/package/codeceptjs-rphelper
 
 ### Installation
 ```
-npm install reportportal-client
 npm install codeceptjs-rphelper
 ```
 
