@@ -19,6 +19,8 @@ let fileName;
 let stepInfo;
 let rpClient;
 let logFile;
+let suiteTempId;
+let beforeSuiteStatus = 'FAILED';
 
 event.dispatcher.on(event.test.failed, (test, err) => {
     test.err = err.message;
@@ -69,12 +71,12 @@ class ReportPortalHelper extends Helper {
         });
     }
 
-    async _startTestItem(launchObj, testTitle) {
+    async _startTestItem(launchObj, testTitle, method) {
         return rpClient.startTestItem({
             description: testTitle,
             name: testTitle,
             start_time: rpClient.helpers.now(),
-            type: 'SCENARIO'
+            type: method
         }, launchObj.tempId);
     }
 
@@ -104,7 +106,7 @@ class ReportPortalHelper extends Helper {
                     type: 'text/plain',
                     content: fs.readFileSync(path.join(global.output_dir, logFile)),
                 });
-            
+
             fs.unlinkSync(path.join(global.output_dir, logFile));
         }
 
@@ -140,14 +142,21 @@ class ReportPortalHelper extends Helper {
 
     async _beforeSuite(suite) {
         launchObj = await this._startLaunch(suite.title);
+        itemObj = await this._startTestItem(launchObj, suite.title, 'BEFORE_SUITE');
+        suiteTempId = itemObj.tempId;
+        beforeSuiteStatus = 'PASSED';
     }
 
     async _afterSuite() {
+        rpClient.finishTestItem(suiteTempId, {
+            'end_time': stepInfo.endTime,
+            'status': beforeSuiteStatus,
+        })
         await this._finishLaunch(launchObj);
     }
 
     async _before(test) {
-        itemObj = await this._startTestItem(launchObj, test.title);
+        itemObj = await this._startTestItem(launchObj, test.title, 'TEST');
     }
 
     now() {
