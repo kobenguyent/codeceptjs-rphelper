@@ -1,5 +1,8 @@
 # Changelog
 
+## [1.1.2] - 2019-11-08
+- move README.md to root so that `npm` can read it
+
 ## [1.1.1] - 2019-11-08
 - fix README.md
 
