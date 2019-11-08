@@ -22,6 +22,7 @@ let rpClient;
 let logFile;
 let suiteTempId;
 let beforeSuiteStatus = 'failed';
+let launchStatus = 'passed';
 
 event.dispatcher.on(event.test.failed, (test, err) => {
   test.err = err.message;
@@ -37,19 +38,19 @@ class ReportPortalHelper extends Helper {
   }
 
   async _failed(test) {
+    launchStatus = 'faild';
     this.errMsg = test.err;
 
     const helpers = container.helpers();
 
-    supportedHelpers.forEach((helperName) => {
+    supportedHelpers.forEach(async (helperName) => {
       if (Object.keys(helpers).indexOf(helperName) > -1) {
         this.helper = helpers[helperName];
+        fileName = `${this.now()}_failed.png`;
+        logFile = `${this.now()}_browser.logs.txt`;
+        await this.helper.saveScreenshot(fileName);
       }
     });
-
-    fileName = `${this.now()}_failed.png`;
-    logFile = `${this.now()}_browser.logs.txt`;
-    await this.helper.saveScreenshot(fileName);
     await this._updateStep(stepInfo, 'failed');
   }
 
@@ -79,32 +80,34 @@ class ReportPortalHelper extends Helper {
 
   async _finishTestItem(launchObject, itemObject, step, status) {
     if (status === 'failed') {
-      const browserLogs = await this.helper.grabBrowserLogs();
-      fs.writeFileSync(path.join(global.output_dir, logFile), util.inspect(browserLogs));
-
-      rpClient.sendLog(itemObject.tempId, {
-        level: 'error',
-        message: `[FAILED STEP] ${step.actor} ${step.name} , ${step.args.join(',')} due to ${this.errMsg}`,
-        time: step.startTime,
-      }, {
-        name: fileName,
-        type: 'image/png',
-        content: fs.readFileSync(path.join(global.output_dir, fileName)),
-      });
-
-      fs.unlinkSync(path.join(global.output_dir, fileName));
-
-      rpClient.sendLog(itemObject.tempId, {
-        level: 'trace',
-        message: `[BROWSER LOGS FOR FAILED STEP] ${step.actor} ${step.name} , ${step.args.join(',')} due to ${this.errMsg}`,
-        time: step.startTime,
-      }, {
-        name: logFile,
-        type: 'text/plain',
-        content: fs.readFileSync(path.join(global.output_dir, logFile)),
-      });
-
-      fs.unlinkSync(path.join(global.output_dir, logFile));
+      if (this.helper) {
+        const browserLogs = await this.helper.grabBrowserLogs();
+        fs.writeFileSync(path.join(global.output_dir, logFile), util.inspect(browserLogs));
+  
+        rpClient.sendLog(itemObject.tempId, {
+          level: 'error',
+          message: `[FAILED STEP] ${step.actor} ${step.name} , ${step.args.join(',')} due to ${this.errMsg}`,
+          time: step.startTime,
+        }, {
+          name: fileName,
+          type: 'image/png',
+          content: fs.readFileSync(path.join(global.output_dir, fileName)),
+        });
+  
+        fs.unlinkSync(path.join(global.output_dir, fileName));
+  
+        rpClient.sendLog(itemObject.tempId, {
+          level: 'trace',
+          message: `[BROWSER LOGS FOR FAILED STEP] ${step.actor} ${step.name} , ${step.args.join(',')} due to ${this.errMsg}`,
+          time: step.startTime,
+        }, {
+          name: logFile,
+          type: 'text/plain',
+          content: fs.readFileSync(path.join(global.output_dir, logFile)),
+        });
+  
+        fs.unlinkSync(path.join(global.output_dir, logFile));
+      }
     }
 
     rpClient.finishTestItem(itemObject.tempId, {
@@ -122,7 +125,7 @@ class ReportPortalHelper extends Helper {
   async _finishLaunch(launchObject) {
     return rpClient.finishLaunch(launchObject.tempId, {
       end_time: rpClient.helpers.now(),
-      status: 'passed',
+      status: launchStatus,
     });
   }
 

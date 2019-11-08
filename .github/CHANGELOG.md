@@ -1,6 +1,9 @@
 # Changelog
 
 ## [1.1.3] - 2019-11-08
+- fix the launch is always passed
+
+## [1.1.3] - 2019-11-08
 - fix codacy issues
 - add badges
 
