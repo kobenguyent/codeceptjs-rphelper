@@ -99,4 +99,5 @@ Success finish launch 65ndx5jucolqsp
 ### Screenshot
 ![ReportPortal Test](https://i.ibb.co/Qm52G0n/Screenshot-2019-04-11-at-15-57-40.png)
 
-All the 
+All the feature tests are now combine in a single launch
+![ReportPortal Launch](http://g.recordit.co/GKsRlB4Fi4.gif)
