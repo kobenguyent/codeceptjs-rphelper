@@ -1,7 +1,7 @@
 [![NPM](https://nodei.co/npm/codeceptjs-rphelper.png?compact=true)](https://nodei.co/npm/codeceptjs-rphelper/)
 
 # codeceptjs-rphelper
-CodeceptJS Reportportal helper to integrate the ReportPortal
+This helpes you integrate the test results of CodeceptJS with ReportPortal
 
 codeceptjs-rphelper is a [CodeceptJS](https://codecept.io/) helper which can publish tests results on [ReportPortal](https://reportportal.io/) after execution.
 
@@ -9,7 +9,7 @@ NPM package: https://www.npmjs.com/package/codeceptjs-rphelper
 
 ### Installation
 ```
-npm install codeceptjs-rphelper
+npm i codeceptjs-rphelper --save
 ```
 
 ### Configuration
@@ -20,24 +20,28 @@ Example:
 
 ```js
 {
+  ...
    helpers: {
     ReportPortalHelper: {
       require: 'codeceptjs-rphelper',
       token: 'YOUR_TOKEN',
       endpoint: 'http://localhost:8080/api/v1',
       launchName: 'This is awesome',
+      launchDescription: 'This is a description of your launch'
       projectName: 'YOUR_PROJECT',
       debug: false
     }
+  ...
 }
 ```
 
 To use this helper you need to provide the following info:
-- token: which can be found by navigating to the user profile page, clicking the username drop-down in the right header and selecting the "Profile" option > "UUID" – is a unique user identifier. UUID is used in automated test configuration files for a user authentication instead of a password. It will allow you to post data, without logging it in the UI.
-- endpoint: your reportportal host + `api/v1` for instance: `http://localhost:8080/api/v1`
-- launchName: the launch name you want, if not provided, the suite title will be used
-- projectName: the project that you created in the reportportal UI.
-- debug: to turn on the debug for reportportal.
+- `token`: which can be found by navigating to the user profile page, clicking the username drop-down in the right header and selecting the "Profile" option > "UUID" – is a unique user identifier. UUID is used in automated test configuration files for a user authentication instead of a password. It will allow you to post data, without logging it in the UI.
+- `endpoint`: your reportportal host + `api/v1` for instance: `http://localhost:8080/api/v1`
+- `launchName`: the launch name you want, if not provided, the suite title will be used
+- `launchDescription`: the description of your launch, if not provided, the description will be empty
+- `projectName`: the project that you created in the reportportal UI
+- `debug`: to turn on the debug for reportportal
 
 Example:
 when debug is `true`
@@ -94,3 +98,5 @@ Success finish launch 65ndx5jucolqsp
 
 ### Screenshot
 ![ReportPortal Test](https://i.ibb.co/Qm52G0n/Screenshot-2019-04-11-at-15-57-40.png)
+
+All the 
