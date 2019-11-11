@@ -1,5 +1,8 @@
 # Changelog
 
+## [1.1.5] - 2019-11-11
+- improvement on scenario with empty step
+
 ## [1.1.4] - 2019-11-08
 - fix the launch is always passed
 
