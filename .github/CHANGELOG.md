@@ -1,5 +1,9 @@
 # Changelog
 
+## [1.1.6] - 2019-11-12
+- fix error on empty scenarios
+- some improvements/minor fixes
+
 ## [1.1.5] - 2019-11-11
 - improvement on scenario with empty step
 

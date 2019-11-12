@@ -1,7 +1,6 @@
 const RPClient = require('reportportal-client');
 const fs = require('fs');
 const path = require('path');
-const { event } = require('codeceptjs');
 const { container } = require('codeceptjs');
 const util = require('util');
 
@@ -22,39 +21,35 @@ let rpClient;
 let logFile;
 let suiteTempId;
 let beforeSuiteStatus = 'failed';
-let launchStatus = 'passed';
-
-event.dispatcher.on(event.test.failed, (test, err) => {
-  test.err = err.message;
-});
 
 class ReportPortalHelper extends Helper {
-  async _updateStep(step, status) {
-    await this._finishTestItem(launchObj, itemObj, step, status);
+
+  _updateStep(step, status) {
+    this._finishTestItem(launchObj, itemObj, step, status);
   }
 
-  async _passed() {
-    await this._updateStep(stepInfo, 'passed');
+  _passed() {
+    this._updateStep(stepInfo, 'passed');
   }
 
   async _failed(test) {
-    launchStatus = 'faild';
-    this.errMsg = test.err;
+    launchStatus = 'failed';
+    this.errMsg = test.err.message;
 
     const helpers = container.helpers();
 
     supportedHelpers.forEach(async (helperName) => {
       if (Object.keys(helpers).indexOf(helperName) > -1) {
         this.helper = helpers[helperName];
-        fileName = `${this.now()}_failed.png`;
-        logFile = `${this.now()}_browser.logs.txt`;
+        fileName = `${rpClient.helpers.now()}_failed.png`;
+        logFile = `${rpClient.helpers.now()}_browser.logs.txt`;
         await this.helper.saveScreenshot(fileName);
       }
     });
-    await this._updateStep(stepInfo, 'failed');
+    this._updateStep(stepInfo, 'failed');
   }
 
-  async _startLaunch(suiteTitle) {
+  _startLaunch(suiteTitle) {
     rpClient = new RPClient({
       token: this.config.token,
       endpoint: this.config.endpoint,
@@ -69,7 +64,7 @@ class ReportPortalHelper extends Helper {
     });
   }
 
-  async _startTestItem(launchObject, testTitle, method, suiteId = null) {
+  _startTestItem(launchObject, testTitle, method, suiteId = null) {
     return rpClient.startTestItem({
       description: testTitle,
       name: testTitle,
@@ -84,71 +79,65 @@ class ReportPortalHelper extends Helper {
         if (this.helper) {
           const browserLogs = await this.helper.grabBrowserLogs();
           fs.writeFileSync(path.join(global.output_dir, logFile), util.inspect(browserLogs));
-    
+
           rpClient.sendLog(itemObject.tempId, {
             level: 'error',
             message: `[FAILED STEP] ${step.actor} ${step.name} , ${step.args.join(',')} due to ${this.errMsg}`,
             time: step.startTime,
           }, {
-            name: fileName,
-            type: 'image/png',
-            content: fs.readFileSync(path.join(global.output_dir, fileName)),
-          });
-    
+              name: fileName,
+              type: 'image/png',
+              content: fs.readFileSync(path.join(global.output_dir, fileName)),
+            });
+
           fs.unlinkSync(path.join(global.output_dir, fileName));
-    
+
           rpClient.sendLog(itemObject.tempId, {
             level: 'trace',
             message: `[BROWSER LOGS FOR FAILED STEP] ${step.actor} ${step.name} , ${step.args.join(',')} due to ${this.errMsg}`,
             time: step.startTime,
           }, {
-            name: logFile,
-            type: 'text/plain',
-            content: fs.readFileSync(path.join(global.output_dir, logFile)),
-          });
-    
+              name: logFile,
+              type: 'text/plain',
+              content: fs.readFileSync(path.join(global.output_dir, logFile)),
+            });
+
           fs.unlinkSync(path.join(global.output_dir, logFile));
         }
+
+        rpClient.sendLog(itemObject.tempId, {
+          level: "error",
+          message: `This step failed due to ${this.errMsg}`,
+          time: rpClient.helpers.now()
+        })
       }
-  
+
       rpClient.finishTestItem(itemObject.tempId, {
         end_time: step.endTime,
         status,
       });
-  
-      rpClient.updateLaunch(
-        launchObject.tempId, {
-          status,
-        },
-      );
     } else {
       rpClient.finishTestItem(itemObject.tempId, {
         end_time: rpClient.helpers.now(),
         status,
       });
-  
-      rpClient.updateLaunch(
-        launchObject.tempId, {
-          status: 'RESTED',
-        },
-      );
     }
   }
 
-  async _finishLaunch(launchObject) {
-    return rpClient.finishLaunch(launchObject.tempId, {
+  _finishLaunch(launchObject) {
+    rpClient.finishLaunch(launchObject.tempId, {
       end_time: rpClient.helpers.now(),
-      status: launchStatus,
+      status: 'PASSED',
     });
   }
 
-  async _beforeStep(step) {
+  _beforeStep(step) {
     if (step) {
       stepInfo = step;
     }
   }
 
-  async _afterStep(step) {
+  _afterStep(step) {
     rpClient.sendLog(itemObj.tempId, {
       level: 'info',
       message: `[STEP] ${step.actor} ${step.name} , ${step.args.join(',')}`,
@@ -156,17 +145,17 @@ class ReportPortalHelper extends Helper {
     });
   }
 
-  async _init() {
-    launchObj = await this._startLaunch();
+  _init() {
+    launchObj = this._startLaunch();
   }
 
-  async _beforeSuite(suite) {
-    itemObj = await this._startTestItem(launchObj, suite.title, 'SUITE');
+  _beforeSuite(suite) {
+    itemObj = this._startTestItem(launchObj, suite.title, 'SUITE');
     suiteTempId = itemObj.tempId;
     beforeSuiteStatus = 'passed';
   }
 
-  async _afterSuite() {
+  _afterSuite() {
     if (stepInfo) {
       rpClient.finishTestItem(suiteTempId, {
         end_time: stepInfo.endTime,
@@ -180,16 +169,12 @@ class ReportPortalHelper extends Helper {
     }
   }
 
-  async _finishTest() {
-    await this._finishLaunch(launchObj);
+  _finishTest() {
+    this._finishLaunch(launchObj);
   }
 
-  async _before(test) {
-    itemObj = await this._startTestItem(launchObj, test.title, 'TEST', suiteTempId);
-  }
-
-  now() {
-    return new Date().valueOf();
+  _before(test) {
+    itemObj = this._startTestItem(launchObj, test.title, 'TEST', suiteTempId);
   }
 }
 
