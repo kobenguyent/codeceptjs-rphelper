@@ -24,7 +24,6 @@ let beforeSuiteStatus = 'failed';
 let launchStatus = 'passed';
 
 class ReportPortalHelper extends Helper {
-
   _updateStep(step, status) {
     this._finishTestItem(launchObj, itemObj, step, status);
   }
@@ -86,10 +85,10 @@ class ReportPortalHelper extends Helper {
             message: `[FAILED STEP] ${step.actor} ${step.name} , ${step.args.join(',')} due to ${this.errMsg}`,
             time: step.startTime,
           }, {
-              name: fileName,
-              type: 'image/png',
-              content: fs.readFileSync(path.join(global.output_dir, fileName)),
-            });
+            name: fileName,
+            type: 'image/png',
+            content: fs.readFileSync(path.join(global.output_dir, fileName)),
+          });
 
           fs.unlinkSync(path.join(global.output_dir, fileName));
 
@@ -98,19 +97,19 @@ class ReportPortalHelper extends Helper {
             message: `[BROWSER LOGS FOR FAILED STEP] ${step.actor} ${step.name} , ${step.args.join(',')} due to ${this.errMsg}`,
             time: step.startTime,
           }, {
-              name: logFile,
-              type: 'text/plain',
-              content: fs.readFileSync(path.join(global.output_dir, logFile)),
-            });
+            name: logFile,
+            type: 'text/plain',
+            content: fs.readFileSync(path.join(global.output_dir, logFile)),
+          });
 
           fs.unlinkSync(path.join(global.output_dir, logFile));
         }
 
         rpClient.sendLog(itemObject.tempId, {
-          level: "error",
+          level: 'error',
           message: `This step failed due to ${this.errMsg}`,
-          time: rpClient.helpers.now()
-        })
+          time: rpClient.helpers.now(),
+        });
       }
 
       rpClient.finishTestItem(itemObject.tempId, {

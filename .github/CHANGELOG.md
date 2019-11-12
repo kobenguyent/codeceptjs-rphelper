@@ -1,5 +1,8 @@
 # Changelog
 
+## [1.1.7] - 2019-11-12
+- make codacy happy
+
 ## [1.1.6] - 2019-11-12
 - fix error on empty scenarios
 - some improvements/minor fixes
