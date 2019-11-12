@@ -21,6 +21,7 @@ let rpClient;
 let logFile;
 let suiteTempId;
 let beforeSuiteStatus = 'failed';
+let launchStatus = 'passed';
 
 class ReportPortalHelper extends Helper {
 
@@ -127,7 +128,7 @@ class ReportPortalHelper extends Helper {
   _finishLaunch(launchObject) {
     rpClient.finishLaunch(launchObject.tempId, {
       end_time: rpClient.helpers.now(),
-      status: 'PASSED',
+      status: launchStatus,
     });
   }
 
