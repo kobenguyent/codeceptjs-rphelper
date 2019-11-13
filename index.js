@@ -3,7 +3,6 @@ const fs = require('fs');
 const path = require('path');
 const util = require('util');
 const Helper = codecept_helper;
-var fileExists = require('file-exists-promise')
 
 const supportedHelpers = [
   'Mochawesome',

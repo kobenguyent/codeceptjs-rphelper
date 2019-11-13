@@ -1,5 +1,8 @@
 # Changelog
 
+## [1.1.9] - 2019-11-13
+- remove unused lib
+
 ## [1.1.8] - 2019-11-13
 - fix screenshots/browser logs are not added in reportportal
 
