@@ -2,6 +2,7 @@ const RPClient = require('reportportal-client');
 const fs = require('fs');
 const path = require('path');
 const util = require('util');
+
 const Helper = codecept_helper;
 
 const supportedHelpers = [
@@ -76,29 +77,28 @@ class ReportPortalHelper extends Helper {
                 message: `[FAILED STEP] ${stepInfo.actor} ${stepInfo.name} , ${stepInfo.args.join(',')} due to ${this.errMsg}`,
                 time: stepInfo.startTime,
               }, {
-                  name: fileName,
-                  type: 'image/png',
-                  content: fs.readFileSync(path.join(global.output_dir, fileName)),
-                });
-    
+                name: fileName,
+                type: 'image/png',
+                content: fs.readFileSync(path.join(global.output_dir, fileName)),
+              });
+
               fs.unlinkSync(path.join(global.output_dir, fileName));
             });
 
             this.helper.grabBrowserLogs().then((browserLogs) => {
               fs.writeFileSync(path.join(global.output_dir, logFile), util.inspect(browserLogs));
-  
+
               rpClient.sendLog(itemObject.tempId, {
                 level: 'trace',
                 message: `[BROWSER LOGS FOR FAILED STEP] ${stepInfo.actor} ${stepInfo.name} , ${stepInfo.args.join(',')} due to ${this.errMsg}`,
                 time: stepInfo.startTime,
               }, {
-                  name: logFile,
-                  type: 'text/plain',
-                  content: fs.readFileSync(path.join(global.output_dir, logFile)),
-                });
-  
+                name: logFile,
+                type: 'text/plain',
+                content: fs.readFileSync(path.join(global.output_dir, logFile)),
+              });
+
               fs.unlinkSync(path.join(global.output_dir, logFile));
-  
             });
           }
         });
