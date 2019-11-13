@@ -1,6 +1,6 @@
 {
   "name": "codeceptjs-rphelper",
-  "version": "1.1.9",
+  "version": "1.1.11",
   "description": "Reportportal helper for Codecept JS tests",
   "repository": {
     "type": "git",
