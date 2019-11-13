@@ -1,8 +1,9 @@
 const RPClient = require('reportportal-client');
 const fs = require('fs');
 const path = require('path');
-const { container } = require('codeceptjs');
 const util = require('util');
+const Helper = codecept_helper;
+var fileExists = require('file-exists-promise')
 
 const supportedHelpers = [
   'Mochawesome',
@@ -35,17 +36,6 @@ class ReportPortalHelper extends Helper {
   async _failed(test) {
     launchStatus = 'failed';
     this.errMsg = test.err.message;
-
-    const helpers = container.helpers();
-
-    supportedHelpers.forEach(async (helperName) => {
-      if (Object.keys(helpers).indexOf(helperName) > -1) {
-        this.helper = helpers[helperName];
-        fileName = `${rpClient.helpers.now()}_failed.png`;
-        logFile = `${rpClient.helpers.now()}_browser.logs.txt`;
-        await this.helper.saveScreenshot(fileName);
-      }
-    });
     this._updateStep(stepInfo, 'failed');
   }
 
@@ -73,37 +63,46 @@ class ReportPortalHelper extends Helper {
     }, launchObject.tempId, suiteId);
   }
 
-  async _finishTestItem(launchObject, itemObject, step, status) {
+  _finishTestItem(launchObject, itemObject, step, status) {
     if (step) {
       if (status === 'failed') {
-        if (this.helper) {
-          const browserLogs = await this.helper.grabBrowserLogs();
-          fs.writeFileSync(path.join(global.output_dir, logFile), util.inspect(browserLogs));
+        supportedHelpers.forEach(async (helperName) => {
+          if (Object.keys(this.helpers).indexOf(helperName) > -1) {
+            this.helper = this.helpers[helperName];
+            fileName = `${rpClient.helpers.now()}_failed.png`;
+            logFile = `${rpClient.helpers.now()}_browser.logs.txt`;
+            this.helper.saveScreenshot(fileName).then(() => {
+              rpClient.sendLog(itemObject.tempId, {
+                level: 'error',
+                message: `[FAILED STEP] ${stepInfo.actor} ${stepInfo.name} , ${stepInfo.args.join(',')} due to ${this.errMsg}`,
+                time: stepInfo.startTime,
+              }, {
+                  name: fileName,
+                  type: 'image/png',
+                  content: fs.readFileSync(path.join(global.output_dir, fileName)),
+                });
+    
+              fs.unlinkSync(path.join(global.output_dir, fileName));
+            });
 
-          rpClient.sendLog(itemObject.tempId, {
-            level: 'error',
-            message: `[FAILED STEP] ${step.actor} ${step.name} , ${step.args.join(',')} due to ${this.errMsg}`,
-            time: step.startTime,
-          }, {
-            name: fileName,
-            type: 'image/png',
-            content: fs.readFileSync(path.join(global.output_dir, fileName)),
-          });
-
-          fs.unlinkSync(path.join(global.output_dir, fileName));
-
-          rpClient.sendLog(itemObject.tempId, {
-            level: 'trace',
-            message: `[BROWSER LOGS FOR FAILED STEP] ${step.actor} ${step.name} , ${step.args.join(',')} due to ${this.errMsg}`,
-            time: step.startTime,
-          }, {
-            name: logFile,
-            type: 'text/plain',
-            content: fs.readFileSync(path.join(global.output_dir, logFile)),
-          });
-
-          fs.unlinkSync(path.join(global.output_dir, logFile));
-        }
+            this.helper.grabBrowserLogs().then((browserLogs) => {
+              fs.writeFileSync(path.join(global.output_dir, logFile), util.inspect(browserLogs));
+  
+              rpClient.sendLog(itemObject.tempId, {
+                level: 'trace',
+                message: `[BROWSER LOGS FOR FAILED STEP] ${stepInfo.actor} ${stepInfo.name} , ${stepInfo.args.join(',')} due to ${this.errMsg}`,
+                time: stepInfo.startTime,
+              }, {
+                  name: logFile,
+                  type: 'text/plain',
+                  content: fs.readFileSync(path.join(global.output_dir, logFile)),
+                });
+  
+              fs.unlinkSync(path.join(global.output_dir, logFile));
+  
+            });
+          }
+        });
 
         rpClient.sendLog(itemObject.tempId, {
           level: 'error',
