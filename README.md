@@ -1,4 +1,4 @@
-[![Codacy Badge](https://api.codacy.com/project/badge/Grade/6e6495428bbd41f0807e4239c42403eb)](https://www.codacy.com/manual/PeterNgTr/codeceptjs-rphelper?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=PeterNgTr/codeceptjs-rphelper&amp;utm_campaign=Badge_Grade) [![npm version](https://badge.fury.io/js/codeceptjs-rphelper.svg)](https://badge.fury.io/js/codeceptjs-rphelper)
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/6e6495428bbd41f0807e4239c42403eb)](https://www.codacy.com/manual/PeterNgTr/codeceptjs-rphelper?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=PeterNgTr/codeceptjs-rphelper&amp;utm_campaign=Badge_Grade) [![npm version](https://badge.fury.io/js/codeceptjs-rphelper.svg)](https://badge.fury.io/js/codeceptjs-rphelper) [![Greenkeeper badge](https://badges.greenkeeper.io/PeterNgTr/codeceptjs-rphelper.svg)](https://greenkeeper.io/)
 
 # codeceptjs-rphelper
 This helpes you integrate the test results of CodeceptJS with ReportPortal
