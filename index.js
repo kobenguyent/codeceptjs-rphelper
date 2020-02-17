@@ -50,8 +50,10 @@ class ReportPortalHelper extends Helper {
 
     return rpClient.startLaunch({
       name: this.config.launchName || suiteTitle,
-      start_time: rpClient.helpers.now(),
       description: this.config.launchDescription || '',
+      attributes: this.config.launchAttributes || [],
+      rerun: this.config.rerun || false,
+      rerunOf: this.config.rerunOf || undefined,
     });
   }
 
@@ -59,7 +61,6 @@ class ReportPortalHelper extends Helper {
     return rpClient.startTestItem({
       description: testTitle,
       name: testTitle,
-      start_time: rpClient.helpers.now(),
       type: method,
     }, launchObject.tempId, suiteId);
   }
@@ -112,12 +113,11 @@ class ReportPortalHelper extends Helper {
       }
 
       rpClient.finishTestItem(itemObject.tempId, {
-        end_time: step.endTime,
+        endTime: step.endTime,
         status,
       });
     } else {
       rpClient.finishTestItem(itemObject.tempId, {
-        end_time: rpClient.helpers.now(),
         status,
       });
     }
@@ -125,7 +125,6 @@ class ReportPortalHelper extends Helper {
 
   _finishLaunch(launchObject) {
     rpClient.finishLaunch(launchObject.tempId, {
-      end_time: rpClient.helpers.now(),
       status: launchStatus,
     });
   }
@@ -157,12 +156,11 @@ class ReportPortalHelper extends Helper {
   _afterSuite() {
     if (stepInfo) {
       rpClient.finishTestItem(suiteTempId, {
-        end_time: stepInfo.endTime,
+        endTime: stepInfo.endTime,
         status: beforeSuiteStatus,
       });
     } else {
       rpClient.finishTestItem(suiteTempId, {
-        end_time: rpClient.helpers.now(),
         status: 'RESTED',
       });
     }
