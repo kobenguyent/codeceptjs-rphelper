@@ -25,7 +25,8 @@ Example:
       token: 'YOUR_TOKEN',
       endpoint: 'http://localhost:8080/api/v1',
       launchName: 'This is awesome',
-      launchDescription: 'This is a description of your launch'
+      launchDescription: 'This is a description of your launch',
+      launchAttributes: [{ key: 'yourKey', value: 'yourValue' }],
       projectName: 'YOUR_PROJECT',
       debug: false
     }
