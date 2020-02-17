@@ -51,6 +51,8 @@ class ReportPortalHelper extends Helper {
       name: this.config.launchName || suiteTitle,
       description: this.config.launchDescription || '',
       attributes: this.config.launchAttributes || [],
+      rerun: this.config.rerun || false,
+      rerunOf: this.config.rerunOf || undefined,
     });
   }
 
