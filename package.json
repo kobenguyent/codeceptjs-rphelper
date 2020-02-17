@@ -21,7 +21,7 @@
   "homepage": "https://github.com/PeterNgTr/codeceptjs-rphelper#readme",
   "main": "index.js",
   "dependencies": {
-    "reportportal-client": "5.2.3",
+    "reportportal-client": "5.5.0",
     "codeceptjs": "^2.3.5"
   },
   "devDependencies": {
