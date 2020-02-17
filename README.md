@@ -36,15 +36,16 @@ Example:
 ```
 
 To use this helper you need to provide the following info:
-    * `token`: which can be found by navigating to the user profile page, clicking the username drop-down in the right header and selecting the "Profile" option > "UUID" – is a unique user identifier. UUID is used in automated test configuration files for a user authentication instead of a password. It will allow you to post data, without logging it in the UI.
-    * `endpoint`: your reportportal host + `api/v1` for instance: `http://localhost:8080/api/v1`
-    * `launchName`: the launch name you want, if not provided, the suite title will be used
-    * `launchDescription`: the description of your launch, if not provided, the description will be empty
-    * `launchAttributes`: the attributes of your launch, if not provided, the attributes will be empty
-    * `projectName`: the project that you created in the reportportal UI
-    * `debug`: to turn on the debug for reportportal
-    * `rerun`: to enable rerun
-    * `rerunOf`: UUID of launch you want to rerun. If not specified, report portal will update the latest launch with the same name
+
+    - `token`: which can be found by navigating to the user profile page, clicking the username drop-down in the right header and selecting the "Profile" option > "UUID" – is a unique user identifier. UUID is used in automated test configuration files for a user authentication instead of a password. It will allow you to post data, without logging it in the UI.
+    - `endpoint`: your reportportal host + `api/v1` for instance: `http://localhost:8080/api/v1`
+    - `launchName`: the launch name you want, if not provided, the suite title will be used
+    - `launchDescription`: the description of your launch, if not provided, the description will be empty
+    - `launchAttributes`: the attributes of your launch, if not provided, the attributes will be empty
+    - `projectName`: the project that you created in the reportportal UI
+    - `debug`: to turn on the debug for reportportal
+    - `rerun`: to enable rerun
+    - `rerunOf`: UUID of launch you want to rerun. If not specified, report portal will update the latest launch with the same name
 
 About [rerun](https://github.com/reportportal/documentation/blob/master/src/md/src/DevGuides/rerun.md).
 
