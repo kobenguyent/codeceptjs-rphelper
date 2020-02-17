@@ -7,12 +7,13 @@ const Helper = codecept_helper;
 
 const supportedHelpers = [
   'Mochawesome',
-  'WebDriverIO',
   'WebDriver',
   'Protractor',
   'Appium',
   'Nightmare',
   'Puppeteer',
+  'TestCafe',
+  'Playwright'
 ];
 let launchObj;
 let itemObj;
@@ -172,7 +173,7 @@ class ReportPortalHelper extends Helper {
   }
 
   _before(test) {
-    itemObj = this._startTestItem(launchObj, test.title, 'TEST', suiteTempId);
+    itemObj = this._startTestItem(launchObj, test.title, 'STEP', suiteTempId);
   }
 }
 
