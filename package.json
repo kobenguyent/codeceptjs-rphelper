@@ -22,11 +22,12 @@
   "main": "index.js",
   "dependencies": {
     "reportportal-client": "5.5.0",
-    "codeceptjs": "^2.3.5"
+    "codeceptjs": "2.5.0"
   },
   "devDependencies": {
     "eslint": "^6.6.0",
     "eslint-config-airbnb-base": "^14.0.0",
-    "eslint-plugin-import": "^2.18.2"
+    "eslint-plugin-import": "^2.18.2",
+    "puppeteer": "^2.1.1"
   }
 }
