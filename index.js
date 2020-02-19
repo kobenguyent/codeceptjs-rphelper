@@ -58,7 +58,7 @@ module.exports = (config) => {
     beforeSuiteStatus = 'PASSED';
   });
 
-  event.dispatcher.on(event.all.after, () => {
+  event.dispatcher.on(event.all.result, () => {
     if (stepInfo) {
       rpClient.finishTestItem(suiteObj.tempId, {
         endTime: stepInfo.endTime,
@@ -76,35 +76,31 @@ module.exports = (config) => {
   });
 
   event.dispatcher.on(event.step.started, (step) => {
-    this.currentStep = step;
     stepObj = _startTestItem(launchObj, step.toString(), 'STEP', testObj.tempId);
   });
 
-  // event.dispatcher.on(event.step.finished, (step) => {
-  //   this.currentStep = null;
-  // });
-
-  event.dispatcher.on(event.test.finished, (test) => {
-    _finishTestItem(launchObj, testObj, undefined, test.state);
-  });
-
   event.dispatcher.on(event.step.passed, (step) => {
-    _updateStep(step, 'PASSED');
-    _finishTestItem(launchObj, stepObj, undefined, step.status);
+    _updateStep(stepObj, step, 'PASSED');
   });
 
   event.dispatcher.on(event.step.failed, (step, err) => {
+    this.step = step;
     launchStatus = 'FAILED';
-    this.errMsg = err.message;
-    _updateStep(step, 'FAILED');
-    console.log(step.status);
+  });
+
+  event.dispatcher.on(event.step.finished, (step) => {
     _finishTestItem(launchObj, stepObj, undefined, step.status);
   });
 
   event.dispatcher.on(event.test.failed, (test, err) => {
     launchStatus = 'FAILED';
-    this.errMsg = err.message;
-    _updateStep(test, 'FAILED');
+    this.step.err = err;
+    _updateStep(stepObj, this.step, 'FAILED');
+    _finishTestItem(launchObj, testObj, undefined, 'FAILED');
+  });
+
+  event.dispatcher.on(event.test.finished, (test) => {
+    _finishTestItem(launchObj, testObj, undefined, test.state);
   });
 
   event.dispatcher.on(event.all.after, () => {
@@ -154,7 +150,7 @@ module.exports = (config) => {
           helper.saveScreenshot(fileName).then(() => {
             rpClient.sendLog(itemObject.tempId, {
               level: 'error',
-              message: `[FAILED STEP] ${step.toString()} due to ${this.errMsg}`,
+              message: `[FAILED STEP] ${step.toString()} due to ${step.err}`,
               time: step.startTime,
             }, {
               name: fileName,
@@ -163,31 +159,24 @@ module.exports = (config) => {
             });
 
             fs.unlinkSync(path.join(global.output_dir, fileName));
-          });
 
-          helper.grabBrowserLogs().then((browserLogs) => {
-            fs.writeFileSync(path.join(global.output_dir, logFile), util.inspect(browserLogs));
-
-            rpClient.sendLog(itemObject.tempId, {
-              level: 'trace',
-              message: `[BROWSER LOGS FOR FAILED STEP] ${step.toString()} due to ${this.errMsg}`,
-              time: step.startTime,
-            }, {
-              name: logFile,
-              type: 'text/plain',
-              content: fs.readFileSync(path.join(global.output_dir, logFile)),
+            helper.grabBrowserLogs().then((browserLogs) => {
+              fs.writeFileSync(path.join(global.output_dir, logFile), util.inspect(browserLogs));
+  
+              rpClient.sendLog(itemObject.tempId, {
+                level: 'trace',
+                message: `[BROWSER LOGS FOR FAILED STEP] ${step.toString()} due to ${step.err}`,
+                time: step.startTime,
+              }, {
+                name: logFile,
+                type: 'text/plain',
+                content: fs.readFileSync(path.join(global.output_dir, logFile)),
+              });
+  
+              fs.unlinkSync(path.join(global.output_dir, logFile));
             });
-
-            fs.unlinkSync(path.join(global.output_dir, logFile));
           });
         }
-
-
-        rpClient.sendLog(itemObject.tempId, {
-          level: 'error',
-          message: `This step failed due to ${this.errMsg}`,
-          time: rpClient.helpers.now(),
-        });
       }
 
       rpClient.finishTestItem(itemObject.tempId, {
@@ -216,8 +205,8 @@ module.exports = (config) => {
 
   }
 
-  function _updateStep(step, status) {
-    _finishTestItem(this.launchObj, stepObj, step, status);
+  function _updateStep(stepObj, step, status) {
+    _finishTestItem(launchObj, stepObj, step, status);
   }
 
   return this;
