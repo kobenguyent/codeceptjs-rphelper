@@ -96,14 +96,13 @@ module.exports = (config) => {
     launchStatus = 'FAILED';
     this.step.err = err;
     _updateStep(stepObj, this.step, 'FAILED');
-    _finishTestItem(launchObj, testObj, undefined, 'FAILED');
   });
 
   event.dispatcher.on(event.test.finished, (test) => {
     _finishTestItem(launchObj, testObj, undefined, test.state);
   });
 
-  event.dispatcher.on(event.all.after, () => {
+  event.dispatcher.on(event.all.result, () => {
     _finishLaunch(launchObj);
   });
 
