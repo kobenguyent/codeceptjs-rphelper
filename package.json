@@ -24,6 +24,10 @@
     "reportportal-client": "5.5.0",
     "codeceptjs": "2.5.0"
   },
+  "scripts": {
+    "install": "npm i",
+    "test": "mocha test/acceptance_test.js --timeout 6000"
+  },
   "devDependencies": {
     "chai": "^4.2.0",
     "eslint": "^6.6.0",
