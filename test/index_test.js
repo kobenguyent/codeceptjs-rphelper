@@ -8,6 +8,7 @@ describe('RP Plugin - Codeceptjs Integration', () => {
     describe('Passed test', () => {
         it('should push data to rp', (done) => {
             exec(`${runner} --grep @pass -c ${configFilePath} --verbose`, (error, stdout, stderr) => {
+                expect(stderr).to.be.empty;
                 expect(stdout).to.include('The launchId is started.');
                 expect(stdout).to.include('The suiteId is started.');
                 expect(stdout).to.include('The testId is started.');
@@ -21,9 +22,9 @@ describe('RP Plugin - Codeceptjs Integration', () => {
     });
 
     describe('Failed test', () => {
-        it.only('should push data to rp', (done) => {
+        it('should push data to rp', (done) => {
             exec(`${runner} --grep @fail -c ${configFilePath} --verbose`, (error, stdout, stderr) => {
-                console.log(stdout);
+                expect(stderr).to.be.empty;
                 expect(stdout).to.include('The launchId is started.');
                 expect(stdout).to.include('The launchId is started.');
                 expect(stdout).to.include('The suiteId is started.');
