@@ -7,9 +7,10 @@ setHeadlessWhen(process.env.HEADLESS);
 exports.config = {
   tests: './*_test.js',
   output: './output',
+  timeout: 10000,
   helpers: {
     Puppeteer: {
-      url: 'https://google.de',
+      url: 'https://www.google.de/',
       show: false
     }
   },
@@ -18,7 +19,7 @@ exports.config = {
   name: 'codeceptjs-rphelper',
   plugins: {
     retryFailedStep: {
-      enabled: true
+      enabled: false
     },
     screenshotOnFail: {
       enabled: true
@@ -26,7 +27,7 @@ exports.config = {
     reportportal: {
       require: '../index',
       token: process.env['RP_TOKEN'],
-      endpoint: 'ttps://web.demo.reportportal.io/api/v1',
+      endpoint: 'https://web.demo.reportportal.io/api/v1',
       launchName: 'This is demo launch',
       launchDescription: 'This is a description of your launch',
       launchAttributes: [{ key: 'yourKey', value: 'yourValue' }],
