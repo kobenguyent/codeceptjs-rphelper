@@ -23,7 +23,7 @@ Example:
   ...
    plugins: {
     reportportal: {
-      require: '@codecept-js/reportportal-plugin',
+      require: 'codeceptjs-rphelper',
       token: 'YOUR_TOKEN',
       endpoint: 'http://localhost:8080/api/v1',
       launchName: 'This is awesome',
