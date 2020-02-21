@@ -13,25 +13,24 @@ describe('RP Plugin - Codeceptjs Integration', () => {
                 expect(stdout).to.include('The suiteId is started.');
                 expect(stdout).to.include('The testId is started.');
                 expect(stdout).to.include('The stepId is started.');
-                expect(stdout).to.include('The passed stepId is updated.');
+                expect(stdout).to.include('The success stepId is updated.');
                 expect(stdout).to.include('OK  | 1 passed ');
                 done();
             });
         });
-    
+
     });
 
     describe('Failed test', () => {
-        it.only('should push data to rp', (done) => {
+        it('should push data to rp', (done) => {
             exec(`${runner} --grep @fail -c ${configFilePath} --verbose`, (error, stdout, stderr) => {
-                console.log(stdout);
                 expect(stderr).to.be.empty;
                 expect(stdout).to.include('The launchId is started.');
                 expect(stdout).to.include('The launchId is started.');
                 expect(stdout).to.include('The suiteId is started.');
                 expect(stdout).to.include('The testId is started.');
                 expect(stdout).to.include('The stepId is started.');
-                expect(stdout).to.include('The FAILED stepId is updated.');
+                expect(stdout).to.include('The failed stepId is updated.');
                 expect(stdout).to.include('Screenshot is attached to failed step');
                 expect(stdout).to.include('FAIL  | 0 passed, 1 failed');
                 done();
