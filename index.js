@@ -2,9 +2,11 @@ const RPClient = require('reportportal-client');
 const fs = require('fs');
 const path = require('path');
 const util = require('util');
-const event = require('codeceptjs').event;
+const { event } = require('codeceptjs');
 const Container = require('codeceptjs').container;
-const output = require('codeceptjs').output;
+const recorder = require('codeceptjs').recorder;
+const { output } = require('codeceptjs');
+
 output.level(3);
 const helpers = Container.helpers();
 let helper;
@@ -17,7 +19,7 @@ const supportedHelpers = [
   'Nightmare',
   'Puppeteer',
   'TestCafe',
-  'Playwright'
+  'Playwright',
 ];
 
 for (const helperName of supportedHelpers) {
@@ -34,7 +36,7 @@ const defaultConfig = {
   attributes: [],
   debug: false,
   rerun: undefined,
-  enabled: false
+  enabled: false,
 };
 
 module.exports = (config) => {
@@ -50,6 +52,8 @@ module.exports = (config) => {
   let logFile;
   let beforeSuiteStatus = 'FAILED';
   let launchStatus = 'PASSED';
+  let currentTest;
+  let currentStep;
 
   event.dispatcher.on(event.all.before, () => {
     launchObj = _startLaunch();
@@ -69,34 +73,48 @@ module.exports = (config) => {
         status: beforeSuiteStatus,
       });
     } else {
-      rpClient.finishTestItem(suiteObj.tempId, {
-        status: 'PASSED',
+      suiteObj.promise.then(() => {
+        rpClient.finishTestItem(suiteObj.tempId, {
+          status: 'PASSED',
+        });
       });
     }
+    _finishLaunch(launchObj);
   });
 
   event.dispatcher.on(event.test.before, (test) => {
-    testObj = _startTestItem(launchObj, test.title, 'TEST', suiteObj.tempId);
+    currentTest = test;
+    currentStep = null;
+    testObj = _startTestItem(launchObj, test.title, 'TEST', suiteObj.tempId, false);
     output.log(`${testObj.tempId}: The testId is started.`);
   });
 
+  event.dispatcher.on(event.test.started, (test) => {
+    currentTest = test;
+  });
+
   event.dispatcher.on(event.step.started, (step) => {
-    stepObj = _startTestItem(launchObj, step.toString(), 'STEP', testObj.tempId);
-    output.log(`${stepObj.tempId}: The stepId is started.`);
+    if (currentStep !== step) {
+      stepObj = _startTestItem(launchObj, step.toString(), 'STEP', testObj.tempId, false);
+      currentStep = step;
+      output.log(`${stepObj.tempId}: The stepId is started.`);
+    }
   });
 
   event.dispatcher.on(event.step.passed, (step) => {
-    _updateStep(stepObj, step, 'PASSED');
-    output.log(`${stepObj.tempId}: The passed stepId is updated.`);
+    if (currentStep === step) {
+      _updateStep(stepObj, step, 'PASSED');
+      currentStep = null;
+    }
   });
 
   event.dispatcher.on(event.step.failed, (step, err) => {
-    this.step = step;
-    launchStatus = 'FAILED';
-  });
-
-  event.dispatcher.on(event.step.finished, (step) => {
-    _finishTestItem(launchObj, stepObj, undefined, step.status);
+    if (currentStep === step) {
+      this.step = step;
+      launchStatus = 'FAILED';
+      _updateStep(stepObj, step, 'FAILED');
+      currentStep = null;
+    }
   });
 
   event.dispatcher.on(event.test.passed, (test) => {
@@ -104,20 +122,21 @@ module.exports = (config) => {
     _updateStep(stepObj, null, 'PASSED');
   });
 
-
-  event.dispatcher.on(event.test.failed, (test, err) => {
+  event.dispatcher.on(event.test.failed, async (test, err) => {
     launchStatus = 'FAILED';
     this.step.err = err;
-    _updateStep(stepObj, this.step, 'FAILED');
-    output.log(`${stepObj.tempId}: The failed stepId is updated.`);
+    if (helper) {
+      fileName = `${rpClient.helpers.now()}_failed.png`;
+      logFile = `${rpClient.helpers.now()}_browser.logs.txt`;
+      await helper.saveScreenshot(fileName);
+      browserLogs = await helper.grabBrowserLogs();
+      _attachScreenshot(stepObj.tempId, this.step, fileName);
+      _attachLogs(stepObj.tempId, this.step, logFile);
+    }
   });
 
   event.dispatcher.on(event.test.finished, (test) => {
     _finishTestItem(launchObj, testObj, undefined, test.state);
-  });
-
-  event.dispatcher.on(event.all.result, () => {
-    _finishLaunch(launchObj);
   });
 
   function _startLaunch(suiteTitle) {
@@ -137,66 +156,25 @@ module.exports = (config) => {
     });
   }
 
-  function _startTestItem(launchObj, testTitle, method, suiteId = null) {
+  function _startTestItem(launchObj, testTitle, method, suiteId = null, hasStats = true) {
     try {
       return rpClient.startTestItem({
         description: testTitle,
         name: testTitle,
         type: method,
+        hasStats,
       }, launchObj.tempId, suiteId);
     } catch (error) {
       output.err(error);
     }
-
   }
 
   function _finishTestItem(launchObj, itemObject, step, status) {
     if (status === 'success') {
-      status = 'PASSED'
-    };
+      status = 'PASSED';
+    }
 
     if (step) {
-      if (status === 'FAILED') {
-        if (helper) {
-          fileName = `${rpClient.helpers.now()}_failed.png`;
-          logFile = `${rpClient.helpers.now()}_browser.logs.txt`;
-          helper.saveScreenshot(fileName).then(() => {
-            try {
-              rpClient.sendLog(itemObject.tempId, {
-                level: 'error',
-                message: `[FAILED STEP] ${step.toString()} due to ${step.err}`,
-                time: step.startTime,
-              }, {
-                name: fileName,
-                type: 'image/png',
-                content: fs.readFileSync(path.join(global.output_dir, fileName)),
-              });
-  
-              fs.unlinkSync(path.join(global.output_dir, fileName));
-              output.log('Screenshot is attached to failed step');
-            } catch (error) {
-              output.error(error);
-            }
-
-            helper.grabBrowserLogs().then((browserLogs) => {
-              fs.writeFileSync(path.join(global.output_dir, logFile), util.inspect(browserLogs));
-  
-              rpClient.sendLog(itemObject.tempId, {
-                level: 'trace',
-                message: `[BROWSER LOGS FOR FAILED STEP] ${step.toString()} due to ${step.err}`,
-                time: step.startTime,
-              }, {
-                name: logFile,
-                type: 'text/plain',
-                content: fs.readFileSync(path.join(global.output_dir, logFile)),
-              });
-  
-              fs.unlinkSync(path.join(global.output_dir, logFile));
-            });
-          });
-        }
-      }
-
       rpClient.finishTestItem(itemObject.tempId, {
         endTime: step.endTime || rpClient.helpers.now(),
         status,
@@ -220,12 +198,51 @@ module.exports = (config) => {
     } catch (error) {
       output.err(error);
     }
-
   }
 
   function _updateStep(stepObj, step, status) {
     _finishTestItem(launchObj, stepObj, step, status);
+    output.log(`${stepObj.tempId}: The ${status} stepId is updated.`);
   }
 
+  function _attachScreenshot(itemObject, step, fileName) {
+    try {
+      rpClient.sendLog(itemObject.tempId, {
+        level: 'error',
+        message: `[FAILED STEP] ${step.toString()} due to ${step.err}`,
+        time: step.startTime,
+      }, {
+        name: fileName,
+        type: 'image/png',
+        content: fs.readFileSync(path.join(global.output_dir, fileName)),
+      });
+
+      fs.unlinkSync(path.join(global.output_dir, fileName));
+      output.log('Screenshot is attached to failed step');
+    } catch (error) {
+      output.error(error);
+    }
+  }
+
+  function _attachLogs(itemObject, step, logFile) {
+    try {
+      fs.writeFileSync(path.join(global.output_dir, logFile), util.inspect(browserLogs));
+
+      rpClient.sendLog(itemObject.tempId, {
+        level: 'trace',
+        message: `[BROWSER LOGS FOR FAILED STEP] ${step.toString()} due to ${step.err}`,
+        time: step.startTime,
+      }, {
+        name: logFile,
+        type: 'text/plain',
+        content: fs.readFileSync(path.join(global.output_dir, logFile)),
+      });
+
+      fs.unlinkSync(path.join(global.output_dir, logFile));
+      output.log('Browser logs are attached to failed step');
+    } catch (error) {
+      output.error(error);
+    }
+  }
   return this;
 };

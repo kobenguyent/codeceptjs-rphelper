@@ -21,19 +21,22 @@
   "homepage": "https://github.com/PeterNgTr/codeceptjs-rphelper#readme",
   "main": "index.js",
   "dependencies": {
-    "reportportal-client": "5.5.0",
-    "codeceptjs": "2.5.0"
+    "codeceptjs": "^2.5.0",
+    "playwright": "^0.11.1",
+    "reportportal-client": "^5.5.0"
   },
   "scripts": {
     "install": "npm i",
     "test": "mocha test/acceptance_test.js --timeout 6000"
   },
   "devDependencies": {
+    "assert": "^2.0.0",
     "chai": "^4.2.0",
     "eslint": "^6.6.0",
     "eslint-config-airbnb-base": "^14.0.0",
     "eslint-plugin-import": "^2.18.2",
     "mocha": "^7.0.1",
-    "puppeteer": "^2.1.1"
+    "puppeteer": "^2.1.1",
+    "sinon": "^9.0.0"
   }
 }
