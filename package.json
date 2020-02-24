@@ -26,7 +26,9 @@
   },
   "scripts": {
     "install": "npm i codeceptjs mocha puppeteer reportportal-client",
-    "test": "mocha test/acceptance_test.js --timeout 6000"
+    "acceptance_test": "mocha test/acceptance_test.js --timeout 6000",
+    "bdd_acceptance_test": "mocha test/bdd_acceptance_test.js --timeout 6000",
+    "test": "npm run acceptance_test && npm run bdd_acceptance_test"
   },
   "devDependencies": {
     "assert": "^2.0.0",
