@@ -1,26 +1,28 @@
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/6e6495428bbd41f0807e4239c42403eb)](https://www.codacy.com/manual/PeterNgTr/codeceptjs-rphelper?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=PeterNgTr/codeceptjs-rphelper&amp;utm_campaign=Badge_Grade) [![npm version](https://badge.fury.io/js/codeceptjs-rphelper.svg)](https://badge.fury.io/js/codeceptjs-rphelper) [![Greenkeeper badge](https://badges.greenkeeper.io/PeterNgTr/codeceptjs-rphelper.svg)](https://greenkeeper.io/)
 
 # codeceptjs-rphelper
+
 This helpes you integrate the test results of CodeceptJS with ReportPortal
 
 codeceptjs-rphelper is a [CodeceptJS](https://codecept.io/) helper which can publish tests results on [ReportPortal](https://reportportal.io/) after execution.
 
 ## Installation
+
 ```sh
 npm i codeceptjs-rphelper --save
 ```
 
 ## Configuration
 
-This helper should be added in codecept.json/codecept.conf.js
+This plugin should be added in `codecept.json/codecept.conf.js`
 
 Example:
 
 ```js
 {
   ...
-   helpers: {
-    ReportPortalHelper: {
+   plugins: {
+    reportportal: {
       require: 'codeceptjs-rphelper',
       token: 'YOUR_TOKEN',
       endpoint: 'http://localhost:8080/api/v1',
@@ -29,13 +31,14 @@ Example:
       launchAttributes: [{ key: 'yourKey', value: 'yourValue' }],
       projectName: 'YOUR_PROJECT',
       rerun: false,
-      debug: false
+      debug: false,
+      enabled: true
     }
   ...
 }
 ```
 
-To use this helper you need to provide the following info:
+To use this plugin you need to provide the following info:
 
 ```sh
 - `token`: which can be found by navigating to the user profile page, clicking the username drop-down in the right header and selecting the "Profile" > "UUID" – is a unique user identifier. UUID is used in automated test configuration files for a user authentication instead of a password. It will allow you to post data, without logging it in the UI.
@@ -105,10 +108,9 @@ Success finish launch 65ndx5jucolqsp
 ```
 
 ## Screenshot
-![ReportPortal Test](https://i.ibb.co/Qm52G0n/Screenshot-2019-04-11-at-15-57-40.png)
 
-All the feature tests are now combine in a single launch
-![ReportPortal Launch](http://g.recordit.co/GKsRlB4Fi4.gif)
+![ReportPortal Test](https://i.ibb.co/zGkBpZ0/Screenshot-2020-02-24-at-11-26-47.png)
 
 ## Notes
+
 Right now, when running with `codeceptjs run`, all tests will be added under a launch. However, if you run with `codeceptjs run-workers no_of_workers`, there will be multiple launches that match `no_of_workers` and all tests will be added under any random launch. One thing you could try right now is trying to use `codeceptjs run-workers --suites no_of_workers`, by that, you won't get the messy results on `reportportal`.
