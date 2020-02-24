@@ -2,10 +2,8 @@ const RPClient = require('reportportal-client');
 const fs = require('fs');
 const path = require('path');
 const util = require('util');
-const { event } = require('codeceptjs');
+const { event, output } = require('codeceptjs');
 const Container = require('codeceptjs').container;
-const { output } = require('codeceptjs');
-
 output.level(3);
 const helpers = Container.helpers();
 let helper;

@@ -1,6 +1,6 @@
 {
   "name": "codeceptjs-rphelper",
-  "version": "1.1.12",
+  "version": "2.0.0",
   "description": "Reportportal helper for Codecept JS tests",
   "repository": {
     "type": "git",
@@ -22,11 +22,10 @@
   "main": "index.js",
   "dependencies": {
     "codeceptjs": "^2.5.0",
-    "playwright": "^0.11.1",
     "reportportal-client": "^5.5.0"
   },
   "scripts": {
-    "install": "npm i",
+    "install": "npm i codeceptjs mocha puppeteer reportportal-client",
     "test": "mocha test/acceptance_test.js --timeout 6000"
   },
   "devDependencies": {
