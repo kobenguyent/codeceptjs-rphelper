@@ -21,7 +21,6 @@
   "homepage": "https://github.com/PeterNgTr/codeceptjs-rphelper#readme",
   "main": "index.js",
   "dependencies": {
-    "codeceptjs": "^2.5.0",
     "reportportal-client": "^5.5.0"
   },
   "scripts": {
@@ -38,6 +37,6 @@
     "eslint-plugin-import": "^2.18.2",
     "mocha": "^7.0.1",
     "puppeteer": "^2.1.1",
-    "sinon": "^9.0.0"
+    "codeceptjs": "^2.5.0"
   }
 }
