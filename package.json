@@ -1,6 +1,6 @@
 {
   "name": "codeceptjs-rphelper",
-  "version": "2.0.3",
+  "version": "2.0.4",
   "description": "Reportportal helper for Codecept JS tests",
   "repository": {
     "type": "git",
@@ -21,24 +21,22 @@
   "homepage": "https://github.com/PeterNgTr/codeceptjs-rphelper#readme",
   "main": "index.js",
   "dependencies": {
-    "codeceptjs": "^2.5.0",
-    "mocha": "^7.1.0",
     "reportportal-client": "^5.5.0"
   },
   "scripts": {
-    "install": "npm i codeceptjs mocha puppeteer reportportal-client",
+    "install_lib": "npm i codeceptjs mocha puppeteer reportportal-client",
     "acceptance_test": "mocha test/acceptance_test.js --timeout 10000",
     "bdd_acceptance_test": "mocha test/bdd_acceptance_test.js --timeout 10000",
     "test": "npm run acceptance_test && npm run bdd_acceptance_test"
   },
   "devDependencies": {
+    "assert": "^2.0.0",
+    "chai": "^4.2.0",
     "eslint": "^6.6.0",
     "eslint-config-airbnb-base": "^14.0.0",
     "eslint-plugin-import": "^2.18.2",
-    "puppeteer": "^2.1.1",
-    "assert": "^2.0.0",
-    "chai": "^4.2.0",
-    "mocha": "^7.1.0"
+    "mocha": "^7.1.0",
+    "puppeteer": "^2.1.1"
   },
   "peerDependencies": {
     "codeceptjs": "^2.5.0"
