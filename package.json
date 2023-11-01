@@ -38,6 +38,6 @@
     "assert": "2.1.0",
     "chai": "4.3.10",
     "mocha": "10.2.0",
-    "puppeteer": "21.4.1"
+    "playwright": "1.39.0"
   }
 }

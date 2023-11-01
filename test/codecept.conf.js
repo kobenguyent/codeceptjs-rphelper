@@ -1,10 +1,10 @@
 exports.config = {
   output: './output',
   helpers: {
-    Puppeteer: {
+    Playwright: {
       url: 'https://www.google.de/',
-      show: false
-    }
+      show: false,
+    },
   },
   include: {},
   mocha: {},
@@ -13,32 +13,32 @@ exports.config = {
   hooks: [],
   gherkin: {
     features: './features/*.feature',
-    steps: ['./step_definitions/steps.js']
+    steps: ['./step_definitions/steps.js'],
   },
   plugins: {
     screenshotOnFail: {
-      enabled: true
+      enabled: true,
     },
     retryFailedStep: {
-      enabled: false
+      enabled: false,
     },
     reportportal: {
       require: '../index',
-      token: process.env.RP_TOKEN,
+      token: process.env.RP_TOKEN || 'thanh_ONE_1dqpSfON3Umt4Y3GKislFUVNjg-rnJeogm8BZN843PuVbGaJvBtzbxgFDP1p',
       endpoint: 'https://demo.reportportal.io/api/v1',
       launchName: 'This is demo launch',
       launchDescription: 'This is a description of your launch',
       launchAttributes: [{
         key: 'yourKey',
-        value: 'yourValue'
+        value: 'yourValue',
       }],
       projectName: 'default_personal',
       rerun: false,
-      debug: false,
-      enabled: true
-    }
+      debug: true,
+      enabled: true,
+    },
   },
   tests: './*_test.js',
   timeout: 10000,
-  name: 'codeceptjs-rphelper'
-}
+  name: 'codeceptjs-rphelper',
+};

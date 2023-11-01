@@ -4,7 +4,10 @@ const path = require('path');
 const debug = require('debug')('codeceptjs:reportportal');
 const { isMainThread } = require('worker_threads');
 const { clearString } = require('codeceptjs/lib/utils');
-const { event, recorder, output, container } = codeceptjs;
+
+const {
+  event, recorder, output, container,
+} = codeceptjs;
 
 const helpers = container.helpers();
 let helper;
@@ -38,7 +41,7 @@ const defaultConfig = {
   attributes: [],
   debug: false,
   rerun: undefined,
-  enabled: false
+  enabled: false,
 };
 
 module.exports = (config) => {
@@ -47,16 +50,14 @@ module.exports = (config) => {
   let launchObj;
   let suiteObj;
   let testObj;
-  let failedStep;
   let rpClient;
 
-  let suiteStatus = rp_PASSED;
-  let launchStatus = rp_PASSED;
+  const launchStatus = rp_PASSED;
   let currentMetaSteps = [];
 
-  let suiteArr = new Set();
+  const suiteArr = new Set();
   let testArr = [];
-  let stepArr = [];
+  const stepArr = [];
 
   event.dispatcher.on(event.suite.before, (suite) => {
     suiteArr.add(suite.title);
@@ -71,11 +72,11 @@ module.exports = (config) => {
   });
 
   event.dispatcher.on(event.test.failed, async (test, err) => {
-    testArr.push(test)
+    testArr.push(test);
   });
 
   event.dispatcher.on(event.test.passed, (test) => {
-    testArr.push(test)
+    testArr.push(test);
   });
 
   async function startTestItem(launchId, testTitle, method, parentId = null) {
@@ -91,13 +92,13 @@ module.exports = (config) => {
     }
   }
 
-  event.dispatcher.on(event.workers.result,  async (result) => {
+  event.dispatcher.on(event.workers.result, async (result) => {
     recorder.add(async () => {
       await _sendResultsToRP(result);
     });
   });
 
-  event.dispatcher.on(event.all.result,  async () => {
+  event.dispatcher.on(event.all.result, async () => {
     if (!process.env.RUNS_WITH_WORKERS) {
       recorder.add(async () => {
         await _sendResultsToRP();
@@ -116,22 +117,22 @@ module.exports = (config) => {
     launchObj = await startLaunch();
     await launchObj.promise;
 
-    let suiteTempIdArr = [];
-    let testTempIdArr = [];
+    const suiteTempIdArr = [];
+    const testTempIdArr = [];
 
     for (suite of suiteArr) {
       suiteObj = await startTestItem(launchObj.tempId, suite, rp_SUITE);
       suiteObj.status = rp_PASSED;
       suiteTempIdArr.push({
         suiteTitle: suite,
-        suiteTempId: suiteObj.tempId
-      })
+        suiteTempId: suiteObj.tempId,
+      });
       await finishStepItem(suiteObj);
     }
 
     if (process.env.RUNS_WITH_WORKERS) {
       for (test of testArr.passed) {
-        testObj = await startTestItem(launchObj.tempId, test.title, rp_TEST, suiteTempIdArr.find(element => element.suiteTitle === test.parent.title).suiteTempId);
+        testObj = await startTestItem(launchObj.tempId, test.title, rp_TEST, suiteTempIdArr.find((element) => element.suiteTitle === test.parent.title).suiteTempId);
         testObj.status = rp_PASSED;
 
         testTempIdArr.push({
@@ -139,13 +140,13 @@ module.exports = (config) => {
           testTempId: testObj.tempId,
           testError: test.err,
           testSteps: test.steps,
-        })
+        });
 
         await finishStepItem(testObj);
       }
 
       for (test of testArr.failed) {
-        testObj = await startTestItem(launchObj.tempId, test.title, rp_TEST, suiteTempIdArr.find(element => element.suiteTitle === test.parent.title).suiteTempId);
+        testObj = await startTestItem(launchObj.tempId, test.title, rp_TEST, suiteTempIdArr.find((element) => element.suiteTitle === test.parent.title).suiteTempId);
         testObj.status = rp_FAILED;
 
         testTempIdArr.push({
@@ -153,13 +154,13 @@ module.exports = (config) => {
           testTempId: testObj.tempId,
           testError: test.err,
           testSteps: test.steps,
-        })
+        });
 
         await finishStepItem(testObj);
       }
     } else {
       for (test of testArr) {
-        testObj = await startTestItem(launchObj.tempId, test.title, rp_TEST, suiteTempIdArr.find(element => element.suiteTitle === test.parent.title).suiteTempId);
+        testObj = await startTestItem(launchObj.tempId, test.title, rp_TEST, suiteTempIdArr.find((element) => element.suiteTitle === test.parent.title).suiteTempId);
         testObj.status = rp_FAILED;
 
         testTempIdArr.push({
@@ -167,7 +168,7 @@ module.exports = (config) => {
           testTempId: testObj.tempId,
           testError: test.err,
           testSteps: test.steps,
-        })
+        });
         await finishStepItem(testObj);
       }
     }
@@ -175,19 +176,23 @@ module.exports = (config) => {
     for (test of testTempIdArr) {
       for (step of test.testSteps) {
         const stepTitle = `[STEP] - ${step.actor} ${step.name} ${(step.args ? step.args.join(' ') : '')}`;
-        const stepObj = await startTestItem(launchObj.tempId,  stepTitle, rp_STEP, test.testTempId);
+        const stepObj = await startTestItem(launchObj.tempId, stepTitle, rp_STEP, test.testTempId);
         stepObj.status = step.status || rp_PASSED;
         await finishStepItem(stepObj);
 
 
         if (stepObj.status === 'failed' && step.err) {
-          await sendLogToRP({ tempId: stepObj.tempId, level: 'ERROR', message: `[FAILED STEP] - ${(step.err.stack ? step.err.stack : JSON.stringify(step.err) )}` });
-          await sendLogToRP({ tempId: stepObj.tempId, level: 'debug', message: 'Last seen screenshot', screenshotData: await attachScreenshot(clearString(test.testTitle) + '.failed.png')});
+          await sendLogToRP({ tempId: stepObj.tempId, level: 'ERROR', message: `[FAILED STEP] - ${(step.err.stack ? step.err.stack : JSON.stringify(step.err))}` });
+          await sendLogToRP({
+            tempId: stepObj.tempId, level: 'debug', message: 'Last seen screenshot', screenshotData: await attachScreenshot(`${clearString(test.testTitle)}.failed.png`),
+          });
         }
 
         if (stepObj.status === 'failed' && step.test.err) {
           await sendLogToRP({ tempId: stepObj.tempId, level: 'ERROR', message: `[FAILED STEP] - ${JSON.stringify(step.test.err)}` });
-          await sendLogToRP({ tempId: stepObj.tempId, level: 'debug', message: 'Last seen screenshot', screenshotData: await attachScreenshot(clearString(test.testTitle) + '.failed.png')});
+          await sendLogToRP({
+            tempId: stepObj.tempId, level: 'debug', message: 'Last seen screenshot', screenshotData: await attachScreenshot(`${clearString(test.testTitle)}.failed.png`),
+          });
         }
       }
     }
@@ -214,8 +219,10 @@ module.exports = (config) => {
     return rpClient.startLaunch(launchOpts);
   }
 
-  async function sendLogToRP({ tempId, level, message, screenshotData}) {
-    await rpClient.sendLog(tempId, {
+  async function sendLogToRP({
+    tempId, level, message, screenshotData,
+  }) {
+    return rpClient.sendLog(tempId, {
       level,
       message,
     }, screenshotData).promise;
@@ -232,7 +239,7 @@ module.exports = (config) => {
         content = fs.readFileSync(path.join(global.output_dir, fileName));
         fs.unlinkSync(path.join(global.output_dir, fileName));
       } catch (err) {
-        output.error(`Couldn't save screenshot`);
+        output.error('Couldn\'t save screenshot');
         return undefined;
       }
     } else {
@@ -243,15 +250,15 @@ module.exports = (config) => {
       name: fileName,
       type: 'image/png',
       content,
-    }
+    };
   }
 
   async function finishLaunch() {
     try {
-      debug(`${launchObj.tempId} Finished launch: ${launchStatus}`)
+      debug(`${launchObj.tempId} Finished launch: ${launchStatus}`);
       await rpClient.finishLaunch(launchObj.tempId, {
         status: launchStatus,
-        endTime: rpClient.helpers.now()
+        endTime: rpClient.helpers.now(),
       });
     } catch (error) {
       debug(error);
@@ -301,8 +308,8 @@ module.exports = (config) => {
 };
 
 function metaStepsToArray(step) {
-  let metaSteps = [];
-  iterateMetaSteps(step, metaStep => metaSteps.push(metaStep));
+  const metaSteps = [];
+  iterateMetaSteps(step, (metaStep) => metaSteps.push(metaStep));
   return metaSteps;
 }
 
