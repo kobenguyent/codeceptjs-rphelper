@@ -1,5 +1,8 @@
 # Changelog
 
+## [3.0.0] - 2023-11-01
+- support CodeceptJS 3.x
+
 ## [1.1.9] - 2019-11-13
 - remove unused lib
 
