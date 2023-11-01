@@ -24,7 +24,7 @@ exports.config = {
     },
     reportportal: {
       require: '../index',
-      token: process.env.RP_TOKEN || 'thanh_ONE_1dqpSfON3Umt4Y3GKislFUVNjg-rnJeogm8BZN843PuVbGaJvBtzbxgFDP1p',
+      token: process.env.RP_TOKEN,
       endpoint: 'https://demo.reportportal.io/api/v1',
       launchName: 'This is demo launch',
       launchDescription: 'This is a description of your launch',
