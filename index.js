@@ -15,6 +15,7 @@ let isControlThread;
 
 const rp_FAILED = 'FAILED';
 const rp_PASSED = 'PASSED';
+const rp_SKIPPED = 'SKIPPED';
 const rp_SUITE = 'SUITE';
 const rp_TEST = 'TEST';
 const rp_STEP = 'STEP';
@@ -158,10 +159,24 @@ module.exports = (config) => {
 
         await finishStepItem(testObj);
       }
+
+      for (test of testArr.skipped) {
+        testObj = await startTestItem(launchObj.tempId, test.title, rp_TEST, suiteTempIdArr.find((element) => element.suiteTitle === test.parent.title).suiteTempId);
+        testObj.status = rp_SKIPPED;
+
+        testTempIdArr.push({
+          testTitle: test.title,
+          testTempId: testObj.tempId,
+          testError: test.err,
+          testSteps: test.steps,
+        });
+
+        await finishStepItem(testObj);
+      }
     } else {
       for (test of testArr) {
         testObj = await startTestItem(launchObj.tempId, test.title, rp_TEST, suiteTempIdArr.find((element) => element.suiteTitle === test.parent.title).suiteTempId);
-        testObj.status = rp_FAILED;
+        testObj.status = test.pending ? rp_SKIPPED : test.state;
 
         testTempIdArr.push({
           testTitle: test.title,
@@ -180,16 +195,13 @@ module.exports = (config) => {
         stepObj.status = step.status || rp_PASSED;
         await finishStepItem(stepObj);
 
-
         if (stepObj.status === 'failed' && step.err) {
           await sendLogToRP({ tempId: stepObj.tempId, level: 'ERROR', message: `[FAILED STEP] - ${(step.err.stack ? step.err.stack : JSON.stringify(step.err))}` });
           await sendLogToRP({
             tempId: stepObj.tempId, level: 'debug', message: 'Last seen screenshot', screenshotData: await attachScreenshot(`${clearString(test.testTitle)}.failed.png`),
           });
-        }
-
-        if (stepObj.status === 'failed' && step.test.err) {
-          await sendLogToRP({ tempId: stepObj.tempId, level: 'ERROR', message: `[FAILED STEP] - ${JSON.stringify(step.test.err)}` });
+        } else if (stepObj.status === 'failed' && step.helper.currentRunningTest.err) {
+          await sendLogToRP({ tempId: stepObj.tempId, level: 'ERROR', message: `[FAILED STEP] - ${step.helper.currentRunningTest.err}` });
           await sendLogToRP({
             tempId: stepObj.tempId, level: 'debug', message: 'Last seen screenshot', screenshotData: await attachScreenshot(`${clearString(test.testTitle)}.failed.png`),
           });
