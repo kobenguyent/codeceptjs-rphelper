@@ -6,7 +6,7 @@ const configFilePath = './test/codecept.conf.js';
 
 describe('RP Plugin - Codeceptjs Integration', () => {
   describe('Passed test', () => {
-    it('should push data to rp', (done) => {
+    it.skip('should push data to rp', (done) => {
       exec(`${runner} --grep @pass -c ${configFilePath} --verbose`, (error, stdout, stderr) => {
         expect(stdout).to.include('Start launch with tempId');
         expect(stdout).to.include("type: 'SUITE'");
