@@ -54,10 +54,7 @@ To use this plugin you need to provide the following info:
 - `rerunOf`: UUID of launch you want to rerun. If not specified, report portal will update the latest launch with the same name
 ```
 
-About [rerun](https://github.com/reportportal/documentation/blob/master/src/md/src/DevGuides/rerun.md).
-
-Example:
-when debug is `true`
+To show more logs: set `debug: true` in the configuration.
 
 ```js
 Happy Path - Smokecheck --
