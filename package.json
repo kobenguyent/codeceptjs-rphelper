@@ -1,10 +1,10 @@
 {
   "name": "codeceptjs-rphelper",
-  "version": "2.0.4",
+  "version": "3.0.0",
   "description": "Reportportal helper for Codecept JS tests",
   "repository": {
     "type": "git",
-    "url": "git+ssh://git@github.com/PeterNgTr/codeceptjs-rphelper.git"
+    "url": "git+ssh://git@github.com/kobenguyent/codeceptjs-rphelper.git"
   },
   "keywords": [
     "codeceptJS",
@@ -13,28 +13,31 @@
     "codeceptjs-reportportal",
     "codeceptjs-rphelper"
   ],
-  "author": "Thanh Nguyen <peter.nguyentr@gmail.com>",
+  "author": "kobenguyent <kobenguyent@gmail.com>",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/PeterNgTr/codeceptjs-rphelper/issues"
+    "url": "https://github.com/kobenguyent/codeceptjs-rphelper/issues"
   },
-  "homepage": "https://github.com/PeterNgTr/codeceptjs-rphelper#readme",
+  "homepage": "https://github.com/kobenguyent/codeceptjs-rphelper#readme",
   "main": "index.js",
-  "dependencies": {
-    "reportportal-client": "^5.5.0"
-  },
   "scripts": {
-    "install_lib": "npm i codeceptjs mocha puppeteer reportportal-client chai assert",
     "acceptance_test": "mocha test/acceptance_test.js --timeout 10000",
     "bdd_acceptance_test": "mocha test/bdd_acceptance_test.js --timeout 10000",
     "test": "npm run acceptance_test && npm run bdd_acceptance_test"
   },
   "devDependencies": {
-    "eslint": "^6.6.0",
-    "eslint-config-airbnb-base": "^14.0.0",
-    "eslint-plugin-import": "^2.18.2"
+    "eslint": "6.6.0",
+    "eslint-config-airbnb-base": "14.0.0",
+    "eslint-plugin-import": "2.18.2"
   },
   "peerDependencies": {
-    "codeceptjs": "^2.5.0"
+    "codeceptjs": "3.5.10"
+  },
+  "dependencies": {
+    "@reportportal/client-javascript": "5.0.14",
+    "assert": "2.1.0",
+    "chai": "4.3.10",
+    "mocha": "10.2.0",
+    "playwright": "1.39.0"
   }
 }

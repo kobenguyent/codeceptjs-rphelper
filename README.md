@@ -2,9 +2,9 @@
 
 # codeceptjs-rphelper
 
-This helpes you integrate the test results of CodeceptJS with ReportPortal
+This helps you publish the CodeceptJS test results to ReportPortal
 
-codeceptjs-rphelper is a [CodeceptJS](https://codecept.io/) helper which can publish tests results on [ReportPortal](https://reportportal.io/) after execution.
+`codeceptjs-rphelper` is a [CodeceptJS](https://codecept.io/) helper which can publish tests results on [ReportPortal](https://reportportal.io/) after execution.
 
 ## Installation
 
@@ -14,7 +14,7 @@ npm i codeceptjs-rphelper --save
 
 ## Configuration
 
-This plugin should be added in `codecept.json/codecept.conf.js`
+This plugin should be added in `codecept.conf.(js|ts)`
 
 Example:
 
@@ -107,10 +107,6 @@ Finish launch 65ndx5jucolqsp
 Success finish launch 65ndx5jucolqsp
 ```
 
-## Screenshot
+## Video
 
-![ReportPortal Test](https://i.ibb.co/zGkBpZ0/Screenshot-2020-02-24-at-11-26-47.png)
-
-## Notes
-
-Right now, when running with `codeceptjs run`, all tests will be added under a launch. However, if you run with `codeceptjs run-workers no_of_workers`, there will be multiple launches that match `no_of_workers` and all tests will be added under any random launch. One thing you could try right now is trying to use `codeceptjs run-workers --suites no_of_workers`, by that, you won't get the messy results on `reportportal`.
+https://github.com/kobenguyent/codeceptjs-rphelper/assets/7845001/c006723c-044b-4a5a-ad82-ddf9a08a5787

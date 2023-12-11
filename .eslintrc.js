@@ -24,5 +24,8 @@ module.exports = {
     "no-shadow": [0],
     "no-unused-vars": [0],
     "no-undef": [0],
+    "no-await-in-loop": [0],
+    "max-len": [0],
+    "camelcase": false
   },
 };
