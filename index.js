@@ -4,6 +4,8 @@ const path = require('path');
 const debug = require('debug')('codeceptjs:reportportal');
 const { isMainThread } = require('worker_threads');
 const { clearString } = require('codeceptjs/lib/utils');
+const axios = require('axios').default;
+const restClient = axios.create();
 
 const {
   event, recorder, output, container,
@@ -94,14 +96,16 @@ module.exports = (config) => {
   }
 
   event.dispatcher.on(event.workers.result, async (result) => {
-    recorder.add(async () => {
+    await recorder.add(async () => {
+      output.print(`📋 Writing results to ReportPortal: ${config.projectName} > ${config.endpoint}`);
       await _sendResultsToRP(result);
     });
   });
 
   event.dispatcher.on(event.all.result, async () => {
     if (!process.env.RUNS_WITH_WORKERS) {
-      recorder.add(async () => {
+      await recorder.add(async () => {
+        output.print(`📋 Writing results to ReportPortal: ${config.projectName} > ${config.endpoint}`);
         await _sendResultsToRP();
       });
     }
@@ -117,6 +121,9 @@ module.exports = (config) => {
 
     launchObj = await startLaunch();
     await launchObj.promise;
+    const launchId = (await launchObj.promise).id;
+    const launchLink = await getRPLink(launchId);
+    output.print(`📋 ReportPortal Launch Link: ${launchLink}`);
 
     const suiteTempIdArr = [];
     const testTempIdArr = [];
@@ -229,6 +236,12 @@ module.exports = (config) => {
     };
 
     return rpClient.startLaunch(launchOpts);
+  }
+
+  async function getRPLink(launchId) {
+    const res = await restClient.get(`${config.endpoint}/${config.projectName}/launch?page.page=1&page.size=50&page.sort=startTime%2Cnumber%2CDESC`, { headers: { Authorization: `Bearer ${config.token }`}});
+    const launch = res.data.content.filter(item => item.uuid === launchId);
+    return `${config.endpoint.split('api')[0]}ui/#${config.projectName}/launches/all/${launch[0].id}`;
   }
 
   async function sendLogToRP({
