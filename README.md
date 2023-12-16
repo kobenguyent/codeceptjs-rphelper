@@ -57,53 +57,183 @@ To use this plugin you need to provide the following info:
 To show more logs: set `debug: true` in the configuration.
 
 ```js
-Happy Path - Smokecheck --
-Start launch 65ndx5jucolqsp
-Start test item 65ndx5jucoltbj
-Success start item 65ndx5jucoltbj
-Save log 65ndx5jucolwu6
-Successfully save log 65ndx5jucolwu6
-Save log 65ndx5jucolz6k
-Successfully save log 65ndx5jucolz6k
-Save log 65ndx5jucom2d6
-Save log 65ndx5jucom2de
-Successfully save log 65ndx5jucom2de
-Successfully save log 65ndx5jucom2d6
-Save log 65ndx5jucom4q3
-Successfully save log 65ndx5jucom4q3
-Save log 65ndx5jucomcfx
-Save log 65ndx5jucomcg7
-Successfully save log 65ndx5jucomcfx
-Successfully save log 65ndx5jucomcg7
-Save log 65ndx5jucomgbd
-Successfully save log 65ndx5jucomgbd
-Save log 65ndx5jucomhd8
-  ✖ Search a restaurant on restaurant list @test in 6384ms
-
--- FAILURES:
-
-  1) Happy Path - Smokecheck
-       Search a restaurant on restaurant list @test:
-     Evaluation failed: DOMException: Failed to execute 'querySelectorAll' on 'Element': '(//input[@id="search-query"])[2]' is not a valid selector.
-    at __puppeteer_evaluation_script__:1:33
-  
-  Scenario Steps:
-  
-  - I.fillField("(//input[@id="search-query"])[2]", "Web") at Object.searchRestaurant (test/codeceptjs/pages/RestaurantList.js:56:11)
-  - I.wait(5) at Object.searchRestaurant (test/codeceptjs/pages/RestaurantList.js:55:11)
-  - I.grabTextFrom("span[class="user-address-summary__details__text"]") at Test.Scenario (test/codeceptjs/tests/smokeCheck/happyPath.js:17:37)
-  
-  
-  
-  Run with --verbose flag to see NodeJS stacktrace
-
-
-  FAIL  | 0 passed, 1 failed   // 34s
-Successfully save log 65ndx5jucomhd8
-Finish test item 65ndx5jucoltbj
-Success finish item 65ndx5jucoltbj
-Finish launch 65ndx5jucolqsp
-Success finish launch 65ndx5jucolqsp
+  FAIL  | 0 passed, 1 failed   // 2s
+📋 Writing results to ReportPortal: default_personal > https://demo.reportportal.io/api/v1
+Option 'token' is deprecated. Use 'apiKey' instead.
+Start launch with tempId ai1m1nxblq7zmyvb {
+  name: 'E2E Test Automation',
+  description: '',
+  attributes: undefined,
+  rerun: undefined,
+  rerunOf: undefined
+}
+Success start launch with tempId ai1m1nxblq7zmyvb { id: '1b46ed37-a5ee-46f8-8485-a981730350d5', number: 99 }
+📋 ReportPortal Launch Link: https://demo.reportportal.io/ui/#default_personal/launches/all/805
+Start test item with tempId ai1m1nxblq7zmz6s {
+  startTime: 1702726908580,
+  name: 'My',
+  type: 'SUITE',
+  hasStats: true,
+  launchUuid: '1b46ed37-a5ee-46f8-8485-a981730350d5'
+}
+Finish all children for test item with tempId ai1m1nxblq7zmz6s 
+Finish test item with tempId ai1m1nxblq7zmz6s { endTime: 1702726908580, status: 'PASSED' }
+Finish all children for test item with tempId ai1m1nxblq7zmz6t 
+Finish test item with tempId ai1m1nxblq7zmz6t { endTime: 1702726908581, status: 'FAILED' }
+Finish all children for test item with tempId ai1m1nxblq7zmz6u 
+Finish test item with tempId ai1m1nxblq7zmz6u { endTime: 1702726908581, status: 'FAILED' }
+Success start item with tempId ai1m1nxblq7zmz6s {
+  id: 'ae0a4705-7b2e-4508-840a-a0ad0df2314e',
+  uniqueId: 'auto:c8fc95413ca778fddfdb4025b395dff5'
+}
+Finish test item with tempId ai1m1nxblq7zmz6s {
+  promiseStart: Promise {
+    {
+      id: 'ae0a4705-7b2e-4508-840a-a0ad0df2314e',
+      uniqueId: 'auto:c8fc95413ca778fddfdb4025b395dff5'
+    }
+  },
+  realId: 'ae0a4705-7b2e-4508-840a-a0ad0df2314e',
+  children: [ 'ai1m1nxblq7zmz6t' ],
+  finishSend: true,
+  promiseFinish: Promise { <pending> },
+  resolveFinish: [Function (anonymous)],
+  rejectFinish: [Function (anonymous)]
+}
+Start test item with tempId ai1m1nxblq7zmz6t {
+  startTime: 1702726908580,
+  name: 'DEMO @C1',
+  type: 'TEST',
+  hasStats: true,
+  launchUuid: '1b46ed37-a5ee-46f8-8485-a981730350d5'
+}
+Success start item with tempId ai1m1nxblq7zmz6t {
+  id: '7292910c-7117-447a-bf27-3286a5e2451d',
+  uniqueId: 'auto:74b464dd31ca3149876fc6c90af368d5'
+}
+Finish test item with tempId ai1m1nxblq7zmz6t {
+  promiseStart: Promise {
+    {
+      id: '7292910c-7117-447a-bf27-3286a5e2451d',
+      uniqueId: 'auto:74b464dd31ca3149876fc6c90af368d5'
+    }
+  },
+  realId: '7292910c-7117-447a-bf27-3286a5e2451d',
+  children: [ 'ai1m1nxblq7zmz6u' ],
+  finishSend: true,
+  promiseFinish: Promise { <pending> },
+  resolveFinish: [Function (anonymous)],
+  rejectFinish: [Function (anonymous)]
+}
+Start test item with tempId ai1m1nxblq7zmz6u {
+  startTime: 1702726908581,
+  name: '[STEP] - I seeAttributesOnElements .container [object Object]',
+  type: 'STEP',
+  hasStats: false,
+  launchUuid: '1b46ed37-a5ee-46f8-8485-a981730350d5'
+}
+Success finish item with tempId ai1m1nxblq7zmz6s {
+  message: "TestItem with ID = 'ae0a4705-7b2e-4508-840a-a0ad0df2314e' successfully finished."
+}
+Success start item with tempId ai1m1nxblq7zmz6u {
+  id: 'dab8fa77-4a24-4858-a393-3c9d6b3f6344',
+  uniqueId: 'auto:1df56aad8a88374cd2386f62fd425e5b'
+}
+Finish test item with tempId ai1m1nxblq7zmz6u {
+  promiseStart: Promise {
+    {
+      id: 'dab8fa77-4a24-4858-a393-3c9d6b3f6344',
+      uniqueId: 'auto:1df56aad8a88374cd2386f62fd425e5b'
+    }
+  },
+  realId: 'dab8fa77-4a24-4858-a393-3c9d6b3f6344',
+  children: [ 'ai1m1nxblq7zmz6v' ],
+  finishSend: true,
+  promiseFinish: Promise { <pending> },
+  resolveFinish: [Function (anonymous)],
+  rejectFinish: [Function (anonymous)]
+}
+Save log with tempId ai1m1nxblq7zmz6v {
+  promiseStart: Promise {
+    {
+      id: 'dab8fa77-4a24-4858-a393-3c9d6b3f6344',
+      uniqueId: 'auto:1df56aad8a88374cd2386f62fd425e5b'
+    }
+  },
+  realId: 'dab8fa77-4a24-4858-a393-3c9d6b3f6344',
+  children: [ 'ai1m1nxblq7zmz6v' ],
+  finishSend: true,
+  promiseFinish: Promise { <pending> },
+  resolveFinish: [Function (anonymous)],
+  rejectFinish: [Function (anonymous)]
+}
+Success finish item with tempId ai1m1nxblq7zmz6t {
+  message: "TestItem with ID = '7292910c-7117-447a-bf27-3286a5e2451d' successfully finished."
+}
+Successfully save log with tempId ai1m1nxblq7zmz6v { id: '4497a6ec-2825-4e42-8989-5720036223d1' }
+Save log with tempId ai1m1nxblq7zmzi5 {
+  promiseStart: Promise {
+    {
+      id: 'dab8fa77-4a24-4858-a393-3c9d6b3f6344',
+      uniqueId: 'auto:1df56aad8a88374cd2386f62fd425e5b'
+    }
+  },
+  realId: 'dab8fa77-4a24-4858-a393-3c9d6b3f6344',
+  children: [ 'ai1m1nxblq7zmz6v', 'ai1m1nxblq7zmzi5' ],
+  finishSend: true,
+  promiseFinish: Promise { <pending> },
+  resolveFinish: [Function (anonymous)],
+  rejectFinish: [Function (anonymous)]
+}
+Save log with file: DEMO_@C1.failed.png {
+  time: 1702726908989,
+  message: 'Last seen screenshot',
+  level: 'debug',
+  launchUuid: '1b46ed37-a5ee-46f8-8485-a981730350d5',
+  itemUuid: 'dab8fa77-4a24-4858-a393-3c9d6b3f6344',
+  file: { name: 'DEMO_@C1.failed.png' }
+}
+Success finish item with tempId ai1m1nxblq7zmz6u {
+  message: "TestItem with ID = 'dab8fa77-4a24-4858-a393-3c9d6b3f6344' successfully finished."
+}
+Success save log with file: DEMO_@C1.failed.png { responses: [ { id: '08be27b0-c64f-4818-8a18-b2338162823b' } ] }
+Successfully save log with tempId ai1m1nxblq7zmzi5 { responses: [ { id: '08be27b0-c64f-4818-8a18-b2338162823b' } ] }
+Start test item with tempId ai1m1nxblq7zmzor {
+  startTime: 1702726909227,
+  name: '[STEP] - I amOnPage https://kobenguyent.github.io/qa-utils/#/',
+  type: 'STEP',
+  hasStats: false,
+  launchUuid: '1b46ed37-a5ee-46f8-8485-a981730350d5'
+}
+Finish all children for test item with tempId ai1m1nxblq7zmzor 
+Finish test item with tempId ai1m1nxblq7zmzor { endTime: 1702726909228, status: 'PASSED' }
+Finish launch with tempId ai1m1nxblq7zmyvb { endTime: 1702726909228, status: 'PASSED' }
+Success finish launch with tempId ai1m1nxblq7zmyvb {
+  id: '1b46ed37-a5ee-46f8-8485-a981730350d5',
+  number: 99,
+  link: 'https://demo.reportportal.io/ui/#default_personal/launches/all/805'
+}
+Success start item with tempId ai1m1nxblq7zmzor {
+  id: '222e0c4f-b814-4f44-be01-d9e014261a28',
+  uniqueId: 'auto:5704ef84f1c5840d8a8dc103ff52868d'
+}
+Finish test item with tempId ai1m1nxblq7zmzor {
+  promiseStart: Promise {
+    {
+      id: '222e0c4f-b814-4f44-be01-d9e014261a28',
+      uniqueId: 'auto:5704ef84f1c5840d8a8dc103ff52868d'
+    }
+  },
+  realId: '222e0c4f-b814-4f44-be01-d9e014261a28',
+  children: [],
+  finishSend: true,
+  promiseFinish: Promise { <pending> },
+  resolveFinish: [Function (anonymous)],
+  rejectFinish: [Function (anonymous)]
+}
+Success finish item with tempId ai1m1nxblq7zmzor {
+  message: "TestItem with ID = '222e0c4f-b814-4f44-be01-d9e014261a28' successfully finished."
+}
 ```
 
 ## Video
