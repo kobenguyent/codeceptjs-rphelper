@@ -197,7 +197,10 @@ module.exports = (config) => {
 
     for (test of testTempIdArr) {
       for (step of test.testSteps) {
-        const stepTitle = `[STEP] - ${step.actor} ${step.name} ${(step.args ? step.args.join(' ') : '')}`;
+        // typo would be fixed by https://github.com/codeceptjs/CodeceptJS/pull/4077
+        const stepArgs = step.agrs ?  step.agrs : step.args
+        const stepTitle = stepArgs ? `[STEP] - ${step.actor} ${step.name} ${JSON.stringify(stepArgs.map(item => item._secret ? '*****' : item).join(' '))}` : `[STEP] - ${step.actor} ${step.name}`;
+
         const stepObj = await startTestItem(launchObj.tempId, stepTitle, rp_STEP, test.testTempId);
         stepObj.status = step.status || rp_PASSED;
         await finishStepItem(stepObj);
