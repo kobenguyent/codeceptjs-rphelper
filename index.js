@@ -198,8 +198,9 @@ module.exports = (config) => {
     for (test of testTempIdArr) {
       for (step of test.testSteps) {
         // typo would be fixed by https://github.com/codeceptjs/CodeceptJS/pull/4077
-        const stepArgs = step.agrs ?  step.agrs : step.args
-        const stepTitle = stepArgs ? `[STEP] - ${step.actor} ${step.name} ${JSON.stringify(stepArgs.map(item => item && item._secret ? '*****' : item).join(' '))}` : `[STEP] - ${step.actor} ${step.name}`;
+        const stepArgs = step.agrs ?  step.agrs : step.args;
+        // if arg is typeof Secret, mask its value, if arg is an object, stringify it, otherwise leave it as it is
+        const stepTitle = stepArgs ? `[STEP] - ${step.actor} ${step.name} ${JSON.stringify(stepArgs.map(item => item && item._secret ? '*****' : (typeof item === 'object') ? JSON.stringify(item) : item).join(' '))}` : `[STEP] - ${step.actor} ${step.name}`;
 
         const stepObj = await startTestItem(launchObj.tempId, stepTitle, rp_STEP, test.testTempId);
         stepObj.status = step.status || rp_PASSED;
