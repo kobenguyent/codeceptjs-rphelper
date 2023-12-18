@@ -199,7 +199,7 @@ module.exports = (config) => {
       for (step of test.testSteps) {
         // typo would be fixed by https://github.com/codeceptjs/CodeceptJS/pull/4077
         const stepArgs = step.agrs ?  step.agrs : step.args
-        const stepTitle = stepArgs ? `[STEP] - ${step.actor} ${step.name} ${JSON.stringify(stepArgs.map(item => item._secret ? '*****' : item).join(' '))}` : `[STEP] - ${step.actor} ${step.name}`;
+        const stepTitle = stepArgs ? `[STEP] - ${step.actor} ${step.name} ${JSON.stringify(stepArgs.map(item => item && item._secret ? '*****' : item).join(' '))}` : `[STEP] - ${step.actor} ${step.name}`;
 
         const stepObj = await startTestItem(launchObj.tempId, stepTitle, rp_STEP, test.testTempId);
         stepObj.status = step.status || rp_PASSED;
