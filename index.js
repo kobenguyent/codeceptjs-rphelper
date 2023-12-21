@@ -70,7 +70,7 @@ module.exports = (config) => {
     stepArr.push(step);
   });
 
-  event.dispatcher.on(event.step.passed, (step, err) => {
+  event.dispatcher.on(event.step.passed, (step) => {
     stepArr.push(step);
   });
 
@@ -199,8 +199,14 @@ module.exports = (config) => {
       for (step of test.testSteps) {
         // typo would be fixed by https://github.com/codeceptjs/CodeceptJS/pull/4077
         const stepArgs = step.agrs ?  step.agrs : step.args;
+
         // if arg is typeof Secret, mask its value, if arg is an object, stringify it, otherwise leave it as it is
-        const stepTitle = stepArgs ? `[STEP] - ${step.actor} ${step.name} ${JSON.stringify(stepArgs.map(item => item && item._secret ? '*****' : (typeof item === 'object') ? JSON.stringify(item) : item).join(' '))}` : `[STEP] - ${step.actor} ${step.name}`;
+        let stepTitle = stepArgs ? `[STEP] - ${step.actor} ${step.name} ${JSON.stringify(stepArgs.map(item => item && item._secret ? '*****' : (typeof item === 'object') ? JSON.stringify(item) : item).join(' '))}` : `[STEP] - ${step.actor} ${step.name}`;
+
+        // reportportal accepts the step name with length less than 1025
+        if (stepTitle.length > 1024) {
+          stepTitle = stepTitle.slice(0, 124);
+        }
 
         const stepObj = await startTestItem(launchObj.tempId, stepTitle, rp_STEP, test.testTempId);
         stepObj.status = step.status || rp_PASSED;
@@ -208,11 +214,11 @@ module.exports = (config) => {
 
         if (stepObj.status === 'failed' && step.err) {
           await sendLogToRP({ tempId: stepObj.tempId, level: 'ERROR', message: `[FAILED STEP] - ${(step.err.stack ? step.err.stack : JSON.stringify(step.err))}` });
-          await sendLogToRP({
-            tempId: stepObj.tempId, level: 'debug', message: 'Last seen screenshot', screenshotData: await attachScreenshot(`${clearString(test.testTitle)}.failed.png`),
-          });
-        } else if (stepObj.status === 'failed' && step.helper.currentRunningTest.err) {
-          await sendLogToRP({ tempId: stepObj.tempId, level: 'ERROR', message: `[FAILED STEP] - ${step.helper.currentRunningTest.err}` });
+        } else if (stepObj.status === 'failed' && step.test.err) {
+          await sendLogToRP({ tempId: stepObj.tempId, level: 'ERROR', message: `[FAILED STEP] - ${step.test.err}` });
+        }
+
+        if (helper) {
           await sendLogToRP({
             tempId: stepObj.tempId, level: 'debug', message: 'Last seen screenshot', screenshotData: await attachScreenshot(`${clearString(test.testTitle)}.failed.png`),
           });
