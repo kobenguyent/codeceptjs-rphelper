@@ -201,12 +201,7 @@ module.exports = (config) => {
         const stepArgs = step.agrs ?  step.agrs : step.args;
 
         // if arg is typeof Secret, mask its value, if arg is an object, stringify it, otherwise leave it as it is
-        let stepTitle = stepArgs ? `[STEP] - ${step.actor} ${step.name} ${JSON.stringify(stepArgs.map(item => item && item._secret ? '*****' : (typeof item === 'object') ? JSON.stringify(item) : item).join(' '))}` : `[STEP] - ${step.actor} ${step.name}`;
-
-        // reportportal accepts the step name with length less than 1025
-        if (stepTitle.length > 1024) {
-          stepTitle = stepTitle.slice(0, 124);
-        }
+        const stepTitle = stepArgs ? `[STEP] - ${step.actor} ${step.name} ${JSON.stringify(stepArgs.map(item => item && item._secret ? '*****' : (typeof item === 'object') ? JSON.stringify(item) : item).join(' '))}` : `[STEP] - ${step.actor} ${step.name}`;
 
         const stepObj = await startTestItem(launchObj.tempId, stepTitle, rp_STEP, test.testTempId);
         stepObj.status = step.status || rp_PASSED;
