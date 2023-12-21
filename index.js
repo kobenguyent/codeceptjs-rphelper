@@ -211,6 +211,8 @@ module.exports = (config) => {
           await sendLogToRP({ tempId: stepObj.tempId, level: 'ERROR', message: `[FAILED STEP] - ${(step.err.stack ? step.err.stack : JSON.stringify(step.err))}` });
         } else if (stepObj.status === 'failed' && step.test.err) {
           await sendLogToRP({ tempId: stepObj.tempId, level: 'ERROR', message: `[FAILED STEP] - ${step.test.err}` });
+        } else if (stepObj.status === 'failed' && step.helper.currentRunningTest.err) {
+          await sendLogToRP({ tempId: stepObj.tempId, level: 'ERROR', message: `[FAILED STEP] - ${step.helper.currentRunningTest.err}` });
         }
 
         if (helper) {
