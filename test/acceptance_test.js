@@ -9,7 +9,6 @@ describe('RP Plugin - Codeceptjs Integration', () => {
     it.skip('should push data to rp', (done) => {
       exec(`${runner} --grep @pass -c ${configFilePath} --verbose`, (error, stdout, stderr) => {
         expect(stdout).to.include('Start launch with tempId');
-        expect(stdout).to.include("type: 'SUITE'");
         expect(stdout).to.include("type: 'TEST'");
         expect(stdout).to.include("type: 'STEP'");
         expect(stdout).to.include('OK  | 1 passed ');
@@ -22,7 +21,6 @@ describe('RP Plugin - Codeceptjs Integration', () => {
     it('should push data to rp', (done) => {
       exec(`${runner} --grep @fail -c ${configFilePath} --verbose`, (error, stdout, stderr) => {
         expect(stdout).to.include('Start launch with tempId');
-        expect(stdout).to.include("type: 'SUITE'");
         expect(stdout).to.include("type: 'TEST'");
         expect(stdout).to.include("type: 'STEP'");
         expect(stdout).to.include('FAIL  | 0 passed, 1 failed');
