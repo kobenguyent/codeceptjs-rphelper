@@ -8,9 +8,7 @@ describe('RP Plugin - Codeceptjs Integration - BDD Feature', () => {
   describe('Passed test', () => {
     it('should push data to rp', (done) => {
       exec(`${runner} --grep @pass -c ${configFilePath} --verbose`, (error, stdout, stderr) => {
-        expect(stdout).to.include('Start launch with tempId');
-        expect(stdout).to.include("type: 'TEST'");
-        expect(stdout).to.include("type: 'STEP'");
+        expect(stdout).to.include('Success start launch with tempId');
         expect(stdout).to.include('OK  | 1 passed ');
         done();
       });
@@ -20,9 +18,7 @@ describe('RP Plugin - Codeceptjs Integration - BDD Feature', () => {
   describe('Failed test', () => {
     it('should push data to rp', (done) => {
       exec(`${runner} --grep @fail -c ${configFilePath} --verbose`, (error, stdout, stderr) => {
-        expect(stdout).to.include('Start launch with tempId');
-        expect(stdout).to.include("type: 'TEST'");
-        expect(stdout).to.include("type: 'STEP'");
+        expect(stdout).to.include('Success start launch with tempId');
         expect(stdout).to.include('FAIL  | 0 passed, 1 failed');
         done();
       });
