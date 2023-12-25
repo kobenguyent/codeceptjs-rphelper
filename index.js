@@ -371,12 +371,12 @@ module.exports = (config) => {
           await sendLogToRP({ tempId: stepObj.tempId, level: 'ERROR', message: `[FAILED STEP] - ${(step.err.stack ? step.err.stack : JSON.stringify(step.err))}` });
           //await sendLogToRP({
             //tempId: stepObj.tempId, level: 'debug', message: 'Last seen screenshot', screenshotData: await attachScreenshot(`${clearString(test.testTitle)}.failed.png`),
-          });
+          //});
         } else if (stepObj.status === 'failed' && step.helper.currentRunningTest.err) {
           await sendLogToRP({ tempId: stepObj.tempId, level: 'ERROR', message: `[FAILED STEP] - ${step.helper.currentRunningTest.err}` });
           //await sendLogToRP({
             //tempId: stepObj.tempId, level: 'debug', message: 'Last seen screenshot', screenshotData: await attachScreenshot(`${clearString(test.testTitle)}.failed.png`),
-          });
+          //});
         }
       }
     }
