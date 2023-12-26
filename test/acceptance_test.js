@@ -1,7 +1,7 @@
 const { exec } = require('child_process');
 const { expect } = require('chai');
 
-const runner = './node_modules/.bin/codeceptjs run rp_plugin_test.js';
+const runner = './node_modules/.bin/codeceptjs run-workers 2 rp_plugin_test.js';
 const configFilePath = './test/codecept.conf.js';
 
 describe('RP Plugin - Codeceptjs Integration', () => {
