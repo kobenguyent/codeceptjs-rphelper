@@ -178,7 +178,7 @@ module.exports = (config) => {
 
         debug(`Attaching screenshot & error to failed step`);
 
-        const screenshot = await attachScreenshot();
+        const screenshot = await attachScreenshot(`${clearString(test.testTitle)}.failed.png`);
 
         resp = await rpClient.sendLog(step.tempId, {
           level: 'ERROR',
