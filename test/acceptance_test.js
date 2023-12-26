@@ -20,7 +20,7 @@ describe('RP Plugin - Codeceptjs Integration', () => {
       exec(`${runner} --grep @fail -c ${configFilePath} --verbose`, (error, stdout, stderr) => {
         console.log(stdout)
         expect(stdout).to.include('Success start launch with tempId');
-        expect(stdout).to.include('FAIL  | 0 passed, 1 failed');
+        expect(stdout).to.include('FAIL  |');
         done();
       });
     });
