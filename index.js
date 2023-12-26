@@ -178,7 +178,7 @@ module.exports = (config) => {
 
         debug(`Attaching screenshot & error to failed step`);
 
-        const screenshot = await attachScreenshot();
+        const screenshot = await attachScreenshot(`${clearString(test.testTitle)}.failed.png`);
 
         resp = await rpClient.sendLog(step.tempId, {
           level: 'ERROR',
@@ -371,7 +371,7 @@ module.exports = (config) => {
           await sendLogToRP({ tempId: stepObj.tempId, level: 'ERROR', message: `[FAILED STEP] - ${(step.err.stack ? step.err.stack : JSON.stringify(step.err))}` });
           debug(`Attaching screenshot & error to failed step`);
 
-        const screenshot = await attachScreenshot();
+        const screenshot = await attachScreenshot(`${clearString(test.testTitle)}.failed.png`);
           await sendLogToRP({
             tempId: stepObj.tempId, level: 'debug', message: 'Last seen screenshot', screenshotData: screenshot,
           });
@@ -379,7 +379,7 @@ module.exports = (config) => {
           await sendLogToRP({ tempId: stepObj.tempId, level: 'ERROR', message: `[FAILED STEP] - ${step.helper.currentRunningTest.err}` });
           debug(`Attaching screenshot & error to failed step`);
 
-        const screenshot = await attachScreenshot();
+        const screenshot = await attachScreenshot(`${clearString(test.testTitle)}.failed.png`);
           await sendLogToRP({
             tempId: stepObj.tempId, level: 'debug', message: 'Last seen screenshot', screenshotData: screenshot,
           });
@@ -420,25 +420,29 @@ module.exports = (config) => {
     return `${config.endpoint.split('api')[0]}ui/#${config.projectName}/launches/all/${launch[0].id}`;
   }
 
-  async function attachScreenshot() {
+  async function attachScreenshot(fileName) {
     if (!helper) return undefined;
+    let content;
 
-    const fileName = `${rpClient.helpers.now()}.png`;
-    try {
-      await helper.saveScreenshot(fileName);
-    } catch (err) {
-      output.error(`Couldn't save screenshot`);
-      return undefined;
+    if (!fileName) {
+      fileName = `${rpClient.helpers.now()}_failed.png`;
+      try {
+        await helper.saveScreenshot(fileName);
+        content = fs.readFileSync(path.join(global.output_dir, fileName));
+        fs.unlinkSync(path.join(global.output_dir, fileName));
+      } catch (err) {
+        output.error('Couldn\'t save screenshot');
+        return undefined;
+      }
+    } else {
+      content = fs.readFileSync(path.join(global.output_dir, fileName));
     }
-
-    const content = fs.readFileSync(path.join(global.output_dir, fileName));
-    fs.unlinkSync(path.join(global.output_dir, fileName));
 
     return {
-      name: 'failed.png',
+      name: fileName,
       type: 'image/png',
       content,
-    }
+    };
   }
 
   async function finishLaunch() {

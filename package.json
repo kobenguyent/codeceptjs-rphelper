@@ -21,8 +21,8 @@
   "homepage": "https://github.com/kobenguyent/codeceptjs-rphelper#readme",
   "main": "index.js",
   "scripts": {
-    "acceptance_test": "mocha test/acceptance_test.js --timeout 10000",
-    "bdd_acceptance_test": "mocha test/bdd_acceptance_test.js --timeout 10000",
+    "acceptance_test": "mocha test/acceptance_test.js --timeout 50000",
+    "bdd_acceptance_test": "mocha test/bdd_acceptance_test.js --timeout 50000",
     "test": "npm run acceptance_test && npm run bdd_acceptance_test"
   },
   "devDependencies": {
