@@ -9,7 +9,7 @@ describe('RP Plugin - Codeceptjs Integration - BDD Feature', () => {
     it('should push data to rp', (done) => {
       exec(`${runner} --grep @pass -c ${configFilePath} --verbose`, (error, stdout, stderr) => {
         expect(stdout).to.include('Success start launch with tempId');
-        expect(stdout).to.include('1 passed');
+        expect(stdout).to.include('1 passing');
         done();
       });
     });
