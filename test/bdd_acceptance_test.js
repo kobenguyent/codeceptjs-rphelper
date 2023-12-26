@@ -1,7 +1,7 @@
 const { exec } = require('child_process');
 const { expect } = require('chai');
 
-const runner = './node_modules/.bin/codeceptjs run features/basic.feature';
+const runner = './node_modules/.bin/codeceptjs run-workers 2 features/basic.feature';
 const configFilePath = './test/codecept.conf.js';
 
 describe('RP Plugin - Codeceptjs Integration - BDD Feature', () => {
