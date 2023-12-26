@@ -372,17 +372,17 @@ module.exports = (config) => {
           debug(`Attaching screenshot & error to failed step`);
 
         const screenshot = await attachScreenshot();
-          await sendLogToRP({
-            tempId: stepObj.tempId, level: 'debug', message: 'Last seen screenshot', screenshotData: screenshot,
-          });
+          //await sendLogToRP({
+            //tempId: stepObj.tempId, level: 'debug', message: 'Last seen screenshot', screenshotData: screenshot,
+          //});
         } else if (stepObj.status === 'failed' && step.helper.currentRunningTest.err) {
           await sendLogToRP({ tempId: stepObj.tempId, level: 'ERROR', message: `[FAILED STEP] - ${step.helper.currentRunningTest.err}` });
           debug(`Attaching screenshot & error to failed step`);
 
         const screenshot = await attachScreenshot();
-          await sendLogToRP({
-            tempId: stepObj.tempId, level: 'debug', message: 'Last seen screenshot', screenshotData: screenshot,
-          });
+          //await sendLogToRP({
+            //tempId: stepObj.tempId, level: 'debug', message: 'Last seen screenshot', screenshotData: screenshot,
+          //});
         }
       }
     }
