@@ -5,6 +5,11 @@ exports.config = {
       url: 'https://www.google.de/',
       show: false,
     },
+    JSONResponse: {},
+    REST: {
+      endpoint: 'https://reqres.in',
+      timeout: 30_000
+    },
   },
   include: {},
   mocha: {},
