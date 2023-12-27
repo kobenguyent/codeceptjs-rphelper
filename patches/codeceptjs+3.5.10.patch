@@ -1,8 +1,8 @@
 diff --git a/node_modules/codeceptjs/lib/command/workers/runTests.js b/node_modules/codeceptjs/lib/command/workers/runTests.js
-index 430a7b4..b47593d 100644
+index 430a7b4..a2ea9e4 100644
 --- a/node_modules/codeceptjs/lib/command/workers/runTests.js
 +++ b/node_modules/codeceptjs/lib/command/workers/runTests.js
-@@ -141,6 +141,14 @@ function initializeListeners() {
+@@ -141,11 +141,19 @@ function initializeListeners() {
      const _steps = [];
  
      for (step of steps) {
@@ -17,3 +17,9 @@ index 430a7b4..b47593d 100644
        _steps.push({
          actor: step.actor,
          name: step.name,
+         status: step.status,
+-        agrs: step.args,
++        agrs: _args,
+         startedAt: step.startedAt,
+         startTime: step.startTime,
+         endTime: step.endTime,

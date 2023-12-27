@@ -20,7 +20,7 @@ Feature('RP Plugin tests');
 
 async function createNewUser(userData) {
     let payload = userData || {
-        name: faker.name.firstName(),
+        name: Date.now(),
         job: 'leader'
     };
 
