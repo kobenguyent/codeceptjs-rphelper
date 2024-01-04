@@ -451,6 +451,8 @@ module.exports = (config) => {
       const launch = rpClient.finishLaunch(launchObj.tempId, {
         status: launchStatus,
       });
+
+      const response = await launch.promise;
       event.emit('reportportal.result', response);
     } catch (error) {
       console.log(error);
