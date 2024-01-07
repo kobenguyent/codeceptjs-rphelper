@@ -348,7 +348,12 @@ module.exports = (config) => {
       for (step of test.testSteps) {
         const stepTitle = step.args ? `[STEP] - ${step.actor} ${step.name} ${JSON.stringify(step.args.map(item => item && item._secret ? '*****' : JSON.stringify(item)).join(' '))}` : `[STEP] - ${step.actor} ${step.name}`;
 
-        const stepObj = await startTestItem(launchObj.tempId, stepTitle.slice(0, 300), rp_STEP, test.testTempId);
+        let stepObj;
+        // add some delay for step to be logged
+        setTimeout(() => {
+  stepObj = await startTestItem(launchObj.tempId, stepTitle.slice(0, 300), rp_STEP, test.testTempId);
+}, 500);
+        
         stepObj.status = step.status || rp_PASSED;
         await finishStepItem(stepObj);
 
