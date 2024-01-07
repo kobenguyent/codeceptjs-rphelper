@@ -247,7 +247,7 @@ module.exports = (config) => {
         type: method,
         hasStats,
       }, launchId, parentId);
-      debug(`${testObj.tempId}: The testId '${test.title}' is started.`);
+      debug(`${testObj.tempId}: The testId '${testTitle}' is started.`);
       return testObj;
     } catch (error) {
       console.log(error);
