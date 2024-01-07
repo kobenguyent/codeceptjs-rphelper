@@ -6,6 +6,7 @@ const { event, recorder, output, container } = codeceptjs;
 const axios = require('axios').default;
 const restClient = axios.create();
 const { clearString } = require('codeceptjs/lib/utils');
+const sleep = require("sleep-promise");
 
 const helpers = container.helpers();
 let helper;
@@ -350,7 +351,7 @@ module.exports = (config) => {
 
         let stepObj;
         // add some delay for step to be logged
-        setTimeout(() => {
+        setTimeout(async () => {
   stepObj = await startTestItem(launchObj.tempId, stepTitle.slice(0, 300), rp_STEP, test.testTempId);
 }, 500);
         
