@@ -347,6 +347,10 @@ module.exports = (config) => {
 
     for (test of testTempIdArr) {
       for (step of test.testSteps) {
+        if (!step) {
+          debug(`The ${test.testTitle} has no steps.`);
+          break;
+        }
         const stepTitle = step.args ? `[STEP] - ${step.actor} ${step.name} ${JSON.stringify(step.args.map(item => item && item._secret ? '*****' : JSON.stringify(item)).join(' '))}` : `[STEP] - ${step.actor} ${step.name}`;
         
         await sleep(1);
