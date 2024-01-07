@@ -109,7 +109,7 @@ module.exports = (config) => {
   event.dispatcher.on(event.suite.before, (suite) => {
     recorder.add(async () => {
       if (!process.env.RUNS_WITH_WORKERS) {
-        suiteObj = startTestItem(suite.title, rp_SUITE);
+        suiteObj = await startTestItem(suite.title, rp_SUITE);
         debug(`${suiteObj.tempId}: The suiteId '${suite.title}' is started.`);
         suite.tempId = suiteObj.tempId;
         suiteStatus = rp_PASSED;
@@ -122,12 +122,10 @@ module.exports = (config) => {
       if (!process.env.RUNS_WITH_WORKERS) {
         currentMetaSteps = [];
         stepObj = null;
-        testObj = startTestItem(test.title, rp_TEST, suiteObj.tempId);
+        testObj = await startTestItem(test.title, rp_TEST, suiteObj.tempId);
         test.tempId = testObj.tempId;
         failedStep = null;
         debug(`${testObj.tempId}: The testId '${test.title}' is started.`);
-      } else {
-        testArr.push(test);
       }
     })
   });
@@ -136,7 +134,7 @@ module.exports = (config) => {
     recorder.add(async () => {
       if (!process.env.RUNS_WITH_WORKERS) {
         const parent = await startMetaSteps(step);
-        stepObj = startTestItem(step.toString().slice(0, 300), rp_STEP, parent.tempId);
+        stepObj = await startTestItem(step.toString().slice(0, 300), rp_STEP, parent.tempId);
         step.tempId = stepObj.tempId;
       }
     })
@@ -244,11 +242,13 @@ module.exports = (config) => {
   async function startTestItem(launchId, testTitle, method, parentId = null) {
     try {
       const hasStats = method !== rp_STEP;
-      return rpClient.startTestItem({
+      const testObj = await rpClient.startTestItem({
         name: testTitle,
         type: method,
         hasStats,
       }, launchId, parentId);
+      debug(`${testObj.tempId}: The testId '${test.title}' is started.`);
+      return testObj;
     } catch (error) {
       console.log(error);
     }
@@ -342,26 +342,11 @@ module.exports = (config) => {
 
         await finishStepItem(testObj);
       }
-    } else {
-      for (test of testArr) {
-        testObj = await startTestItem(launchObj.tempId, test.title, rp_TEST, suiteTempIdArr.find((element) => element.suiteTitle === test.parent.title).suiteTempId);
-        testObj.status = test.pending ? rp_SKIPPED : test.state;
-
-        testTempIdArr.push({
-          testTitle: test.title,
-          testTempId: testObj.tempId,
-          testError: test.err,
-          testSteps: test.steps,
-        });
-        await finishStepItem(testObj);
-      }
     }
 
     for (test of testTempIdArr) {
       for (step of test.testSteps) {
-        // typo would be fixed by https://github.com/codeceptjs/CodeceptJS/pull/4077
-        const stepArgs = step.agrs ?  step.agrs : step.args
-        const stepTitle = stepArgs ? `[STEP] - ${step.actor} ${step.name} ${JSON.stringify(stepArgs.map(item => item && item._secret ? '*****' : JSON.stringify(item)).join(' '))}` : `[STEP] - ${step.actor} ${step.name}`;
+        const stepTitle = step.args ? `[STEP] - ${step.actor} ${step.name} ${JSON.stringify(step.args.map(item => item && item._secret ? '*****' : JSON.stringify(item)).join(' '))}` : `[STEP] - ${step.actor} ${step.name}`;
 
         const stepObj = await startTestItem(launchObj.tempId, stepTitle.slice(0, 300), rp_STEP, test.testTempId);
         stepObj.status = step.status || rp_PASSED;
@@ -390,7 +375,7 @@ module.exports = (config) => {
     await finishLaunch();
   }
 
-  async function sendLogToRP({tempId, level, message, screenshotData,}) {
+  async function sendLogToRP({tempId, level, message, screenshotData}) {
     return rpClient.sendLog(tempId, {
       level,
       message,
@@ -415,7 +400,7 @@ module.exports = (config) => {
   }
 
   async function getRPLink(launchId) {
-    const res = await restClient.get(`${config.endpoint}/${config.projectName}/launch?page.page=1&page.size=50&page.sort=startTime%2Cnumber%2CDESC`, { headers: { Authorization: `Bearer ${config.token }`}});
+    const res = await restClient.get(`${config.endpoint}/${config.projectName}/launch?page.page=1&page.size=50&page.sort=startTime%2Cnumber%2CDESC`, { headers: { Authorization: `Bearer ${config.token}`}});
     const launch = res.data.content.filter(item => item.uuid === launchId);
     return `${config.endpoint.split('api')[0]}ui/#${config.projectName}/launches/all/${launch[0].id}`;
   }
@@ -517,7 +502,6 @@ module.exports = (config) => {
       status: rpStatus(step.status),
     });
   }
-
 
   return {
     addLog: logCurrent,
