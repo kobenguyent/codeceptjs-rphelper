@@ -359,19 +359,21 @@ module.exports = (config) => {
         stepObj.status = step.status || rp_PASSED;
         await finishStepItem(stepObj);
 
-        let stepMessage;
-        if (stepObj.status === 'failed' && step.err) {
-          stepMessage = `[FAILED STEP] - ${(step.err.stack ? step.err.stack : JSON.stringify(step.err))}`;
-        } else if (stepObj.status === 'failed' && step.helper.currentRunningTest.err) {
-          stepMessage =  `[FAILED STEP] - ${JSON.stringify(step.helper.currentRunningTest.err)}`;
-        }
-        await sendLogToRP({ tempId: stepObj.tempId, level: 'ERROR', message: stepMessage });
+        if (stepObj.status === 'failed') {
+          let stepMessage;
+          if (step.err) {
+            stepMessage = `[FAILED STEP] - ${(step.err.stack ? step.err.stack : JSON.stringify(step.err))}`;
+          } else if (step.helper.currentRunningTest.err) {
+            stepMessage =  `[FAILED STEP] - ${JSON.stringify(step.helper.currentRunningTest.err)}`;
+          }
+          await sendLogToRP({ tempId: stepObj.tempId, level: 'ERROR', message: stepMessage });
 
-        if (helper && stepObj.status === 'failed') {
-          const screenshot = await attachScreenshot(`${clearString(test.testTitle)}.failed.png`);
-          await sendLogToRP({
-            tempId: stepObj.tempId, level: 'debug', message: 'Last seen screenshot', screenshotData: screenshot,
-          });
+          if (helper) {
+            const screenshot = await attachScreenshot(`${clearString(test.testTitle)}.failed.png`);
+            await sendLogToRP({
+              tempId: stepObj.tempId, level: 'debug', message: 'Last seen screenshot', screenshotData: screenshot,
+            });
+          }
         }
       }
     }
