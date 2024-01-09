@@ -79,13 +79,13 @@ module.exports = (config) => {
       try {
         await launchObj.promise;
         const launchId = (await launchObj.promise).id;
+        const launchLink = await getRPLink(launchId);
+        writePRInfo(launchLink, config);
       } catch (err) {
         output.error(`❌ Can't connect to ReportPortal, exiting...`);
         output.error(err);
         process.exit(1);
       }
-      output.print(`📋 Writing results to ReportPortal: ${config.projectName} > ${config.endpoint}`);
-
       const outputLog = output.log;
       const outputDebug = output.debug;
       const outputError = output.error;
@@ -110,7 +110,7 @@ module.exports = (config) => {
   event.dispatcher.on(event.suite.before, (suite) => {
     recorder.add(async () => {
       if (!process.env.RUNS_WITH_WORKERS) {
-        suiteObj = await startTestItem(suite.title, rp_SUITE);
+        suiteObj = await startTestItem(launchObj.tempId, suite.title, rp_SUITE);
         debug(`${suiteObj.tempId}: The suiteId '${suite.title}' is started.`);
         suite.tempId = suiteObj.tempId;
         suiteStatus = rp_PASSED;
@@ -123,7 +123,7 @@ module.exports = (config) => {
       if (!process.env.RUNS_WITH_WORKERS) {
         currentMetaSteps = [];
         stepObj = null;
-        testObj = await startTestItem(test.title, rp_TEST, suiteObj.tempId);
+        testObj = await startTestItem(launchObj.tempId, test.title, rp_TEST, suiteObj.tempId);
         test.tempId = testObj.tempId;
         failedStep = null;
         debug(`${testObj.tempId}: The testId '${test.title}' is started.`);
@@ -135,7 +135,7 @@ module.exports = (config) => {
     recorder.add(async () => {
       if (!process.env.RUNS_WITH_WORKERS) {
         const parent = await startMetaSteps(step);
-        stepObj = await startTestItem(step.toString().slice(0, 300), rp_STEP, parent.tempId);
+        stepObj = await startTestItem(launchObj.tempId, step.toString().slice(0, 300), rp_STEP, parent.tempId);
         step.tempId = stepObj.tempId;
       }
     })
@@ -269,7 +269,6 @@ module.exports = (config) => {
 
   event.dispatcher.on(event.workers.result, async (result) => {
     await recorder.add(async () => {
-      output.print(`📋 Writing results to ReportPortal: ${config.projectName} > ${config.endpoint}`);
       await _sendResultsToRP(result);
     });
   });
@@ -286,7 +285,7 @@ module.exports = (config) => {
     await launchObj.promise;
     const launchId = (await launchObj.promise).id;
     const launchLink = await getRPLink(launchId);
-    output.print(`📋 ReportPortal Launch Link: ${launchLink}`);
+    writePRInfo(launchLink, config);
 
     const suiteTempIdArr = [];
     const testTempIdArr = [];
@@ -351,27 +350,24 @@ module.exports = (config) => {
           debug(`The ${test.testTitle} has no steps.`);
           break;
         }
-        const stepTitle = step.args ? `[STEP] - ${step.actor} ${step.name} ${JSON.stringify(step.args.map(item => item && item._secret ? '*****' : JSON.stringify(item)).join(' '))}` : `[STEP] - ${step.actor} ${step.name}`;
-        
+        const stepArgs = step.agrs ? step.agrs : step.args;
+        const stepTitle = stepArgs ? `[STEP] - ${step.actor} ${step.name} ${JSON.stringify(stepArgs.map(item => item && item._secret ? '*****' : JSON.stringify(item)).join(' '))}` : `[STEP] - ${step.actor} ${step.name}`;
+
         await sleep(1);
         const stepObj = await startTestItem(launchObj.tempId, stepTitle.slice(0, 300), rp_STEP, test.testTempId);
-        
+
         stepObj.status = step.status || rp_PASSED;
         await finishStepItem(stepObj);
 
+        let stepMessage;
         if (stepObj.status === 'failed' && step.err) {
-          await sendLogToRP({ tempId: stepObj.tempId, level: 'ERROR', message: `[FAILED STEP] - ${(step.err.stack ? step.err.stack : JSON.stringify(step.err))}` });
-          debug(`Attaching screenshot & error to failed step`);
-
-        const screenshot = await attachScreenshot(`${clearString(test.testTitle)}.failed.png`);
-          await sendLogToRP({
-            tempId: stepObj.tempId, level: 'debug', message: 'Last seen screenshot', screenshotData: screenshot,
-          });
+          stepMessage = `[FAILED STEP] - ${(step.err.stack ? step.err.stack : JSON.stringify(step.err))}`;
         } else if (stepObj.status === 'failed' && step.helper.currentRunningTest.err) {
-          await sendLogToRP({ tempId: stepObj.tempId, level: 'ERROR', message: `[FAILED STEP] - ${step.helper.currentRunningTest.err}` });
-          debug(`Attaching screenshot & error to failed step`);
-
+          stepMessage =  `[FAILED STEP] - ${JSON.stringify(step.helper.currentRunningTest.err)}`;
+        }
+        await sendLogToRP({ tempId: stepObj.tempId, level: 'ERROR', message: stepMessage });
         const screenshot = await attachScreenshot(`${clearString(test.testTitle)}.failed.png`);
+        if (screenshot) {
           await sendLogToRP({
             tempId: stepObj.tempId, level: 'debug', message: 'Last seen screenshot', screenshotData: screenshot,
           });
@@ -383,6 +379,7 @@ module.exports = (config) => {
   }
 
   async function sendLogToRP({tempId, level, message, screenshotData}) {
+    debug(`Attaching screenshot & error to failed step...`);
     return rpClient.sendLog(tempId, {
       level,
       message,
@@ -476,7 +473,7 @@ module.exports = (config) => {
       metaStepObj = currentMetaSteps[i-1] || metaStepObj;
 
       const isNested = !!metaStepObj.tempId;
-      metaStepObj = startTestItem(metaStep.toString(), rp_STEP, metaStepObj.tempId || testObj.tempId);
+      metaStepObj = startTestItem(launchObj.tempId, metaStep.toString(), rp_STEP, metaStepObj.tempId || testObj.tempId);
       metaStep.tempId = metaStepObj.tempId;
       debug(`${metaStep.tempId}: The stepId '${metaStep.toString()}' is started. Nested: ${isNested}`);
     }
@@ -540,4 +537,9 @@ function rpStatus(status) {
   if (status === 'success') return rp_PASSED;
   if (status === 'failed') return rp_FAILED;
   return status;
+}
+
+function writePRInfo(launchLink, config) {
+  output.print(`📋 Writing results to ReportPortal: Project Name: ${config.projectName} > RP Endpoint: ${config.endpoint}`);
+  output.print(`📋 ReportPortal Launch Link: ${launchLink}`);
 }
