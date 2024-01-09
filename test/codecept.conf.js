@@ -31,8 +31,8 @@ exports.config = {
       require: '../index',
       token: process.env.RP_TOKEN,
       endpoint: 'https://demo.reportportal.io/api/v1',
-      launchName: 'This is demo launch',
-      launchDescription: 'This is a description of your launch',
+      launchName: `This is demo launch runs on ${Date.now()}`,
+      launchDescription: `This is launch description: ${Date.now()}`,
       launchAttributes: [{
         key: 'yourKey',
         value: 'yourValue',

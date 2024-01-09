@@ -366,8 +366,9 @@ module.exports = (config) => {
           stepMessage =  `[FAILED STEP] - ${JSON.stringify(step.helper.currentRunningTest.err)}`;
         }
         await sendLogToRP({ tempId: stepObj.tempId, level: 'ERROR', message: stepMessage });
-        const screenshot = await attachScreenshot(`${clearString(test.testTitle)}.failed.png`);
-        if (screenshot) {
+
+        if (helper && stepObj.status === 'failed') {
+          const screenshot = await attachScreenshot(`${clearString(test.testTitle)}.failed.png`);
           await sendLogToRP({
             tempId: stepObj.tempId, level: 'debug', message: 'Last seen screenshot', screenshotData: screenshot,
           });
