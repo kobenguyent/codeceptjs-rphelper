@@ -19,6 +19,7 @@ const rp_TEST = 'TEST';
 const rp_STEP = 'STEP';
 const PREFIX_PASSED_TEST = '✅ [TEST]';
 const PREFIX_FAILED_TEST = '❌ [TEST]';
+const PREFIX_SKIPPED_TEST = '⏩ [SKIPPED TEST]'
 const PREFIX_PASSED_STEP = '✅ [STEP]';
 const PREFIX_FAILED_STEP = '❌ [STEP]';
 
@@ -349,6 +350,8 @@ module.exports = (config) => {
           testSteps: test.steps,
         });
 
+        const message = `${PREFIX_SKIPPED_TEST} - ${test.title}`;
+        await sendLogToRP({ tempId: testObj.tempId, level: 'INFO', message });
         await finishStepItem(testObj);
       }
     }
