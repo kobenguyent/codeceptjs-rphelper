@@ -17,6 +17,10 @@ const rp_SKIPPED = 'SKIPPED';
 const rp_SUITE = 'SUITE';
 const rp_TEST = 'TEST';
 const rp_STEP = 'STEP';
+const PREFIX_PASSED_TEST = '✅ [TEST]';
+const PREFIX_FAILED_TEST = '❌ [TEST]';
+const PREFIX_PASSED_STEP = '✅ [STEP]';
+const PREFIX_FAILED_STEP = '❌ [STEP]';
 
 const screenshotHelpers = [
   'WebDriver',
@@ -189,7 +193,7 @@ module.exports = (config) => {
 
       if (!test.tempId) return;
 
-      debug(`${test.tempId}: Test '${test.title}' failed.`);
+      debug(`${test.tempId}: ${PREFIX_FAILED_TEST}: '${test.title}'`);
 
       if (!failedStep) {
         await rpClient.sendLog(test.tempId, {
@@ -312,12 +316,15 @@ module.exports = (config) => {
           testSteps: test.steps,
         });
 
+        const message = `${PREFIX_PASSED_TEST} - ${test.title}`;
+        await sendLogToRP({ tempId: testObj.tempId, level: 'INFO', message });
         await finishStepItem(testObj);
       }
 
       for (test of testArr.failed) {
         testObj = await startTestItem(launchObj.tempId, test.title, rp_TEST, suiteTempIdArr.find((element) => element.suiteTitle === test.parent.title).suiteTempId);
         testObj.status = rp_FAILED;
+        launchStatus = rp_FAILED;
 
         testTempIdArr.push({
           testTitle: test.title,
@@ -326,6 +333,8 @@ module.exports = (config) => {
           testSteps: test.steps,
         });
 
+        const message = `${PREFIX_FAILED_TEST} - ${test.title}\n${test.err.stack ? test.err.stack : JSON.stringify(test.err)}`;
+        await sendLogToRP({ tempId: testObj.tempId, level: 'ERROR', message });
         await finishStepItem(testObj);
       }
 
@@ -351,7 +360,7 @@ module.exports = (config) => {
           break;
         }
         const stepArgs = step.agrs ? step.agrs : step.args;
-        const stepTitle = stepArgs ? `[STEP] - ${step.actor} ${step.name} ${JSON.stringify(stepArgs.map(item => item && item._secret ? '*****' : JSON.stringify(item)).join(' '))}` : `[STEP] - ${step.actor} ${step.name}`;
+        const stepTitle = stepArgs ? `${PREFIX_PASSED_STEP}: ${step.actor} ${step.name} ${JSON.stringify(stepArgs.map(item => item && item._secret ? '*****' : JSON.stringify(item)).join(' '))}` : `${PREFIX_PASSED_STEP}: - ${step.actor} ${step.name}`;
 
         await sleep(1);
         const stepObj = await startTestItem(launchObj.tempId, stepTitle.slice(0, 300), rp_STEP, test.testTempId);
@@ -362,16 +371,16 @@ module.exports = (config) => {
         if (stepObj.status === 'failed') {
           let stepMessage;
           if (step.err) {
-            stepMessage = `[FAILED STEP] - ${(step.err.stack ? step.err.stack : JSON.stringify(step.err))}`;
+            stepMessage = `${PREFIX_FAILED_STEP}: ${(step.err.stack ? step.err.stack : JSON.stringify(step.err))}`;
           } else if (step.helper.currentRunningTest.err) {
-            stepMessage =  `[FAILED STEP] - ${JSON.stringify(step.helper.currentRunningTest.err)}`;
+            stepMessage =  `${PREFIX_FAILED_STEP}: ${JSON.stringify(step.helper.currentRunningTest.err)}`;
           }
           await sendLogToRP({ tempId: stepObj.tempId, level: 'ERROR', message: stepMessage });
 
           if (helper) {
             const screenshot = await attachScreenshot(`${clearString(test.testTitle)}.failed.png`);
             await sendLogToRP({
-              tempId: stepObj.tempId, level: 'debug', message: 'Last seen screenshot', screenshotData: screenshot,
+              tempId: stepObj.tempId, level: 'debug', message: '📷 Last seen screenshot', screenshotData: screenshot,
             });
           }
         }
@@ -382,7 +391,7 @@ module.exports = (config) => {
   }
 
   async function sendLogToRP({tempId, level, message, screenshotData}) {
-    debug(`Attaching screenshot & error to failed step...`);
+    debug(`📷 Attaching screenshot & error to failed step...`);
     return rpClient.sendLog(tempId, {
       level,
       message,
@@ -391,7 +400,7 @@ module.exports = (config) => {
 
   function startLaunch(suiteTitle) {
     rpClient = new RPClient({
-      token: config.token,
+      apiKey: config.token,
       endpoint: config.endpoint,
       project: config.projectName,
       debug: config.debug,
@@ -537,8 +546,8 @@ const isEqualMetaStep = (metastep1, metastep2) => {
 
 
 function rpStatus(status) {
-  if (status === 'success') return rp_PASSED;
-  if (status === 'failed') return rp_FAILED;
+  if (status.toLowerCase() === 'success') return rp_PASSED;
+  if (status.toLowerCase() === 'failed') return rp_FAILED;
   return status;
 }
 
