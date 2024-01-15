@@ -4,9 +4,9 @@ const {TEST_ITEM_TYPES} = require("../constants/testItemTypes");
 const {STATUSES} = require("../constants/statuses");
 const fs = require("fs");
 const path = require("path");
+const RestClient = require("./restClient");
 const debug = require('debug')('codeceptjs:reportportal');
-const axios = require('axios').default;
-const restClient = axios.create();
+const restClient = new RestClient();
 const { output, event } = codeceptjs;
 let rpClient;
 
@@ -45,7 +45,7 @@ async function finishLaunch(launchObj, launchStatus) {
 
 async function getRPLink(config, launchId) {
     try {
-        const res = await restClient.get(`${config.endpoint}/${config.projectName}/launch?page.page=1&page.size=50&page.sort=startTime%2Cnumber%2CDESC`, { headers: { Authorization: `Bearer ${config.token}`}});
+        const res = await restClient.makeGetRequest(`${config.endpoint}/${config.projectName}/launch?page.page=1&page.size=50&page.sort=startTime%2Cnumber%2CDESC`,  { Authorization: `Bearer ${config.token}`});
         const launch = res.data.content.filter(item => item.uuid === launchId);
         return `${config.endpoint.split('api')[0]}ui/#${config.projectName}/launches/all/${launch[0].id}`;
     } catch (e) {
@@ -81,6 +81,17 @@ async function startTestItem(launchId, testTitle, method, parentId = null, paren
     }
 }
 
+async function finishTestItem(test) {
+    if (!test) return;
+
+    debug(`Finishing '${test.toString()}' Test`);
+
+    rpClient.finishTestItem(test.tempId, {
+        endTime: rpClient.helpers.now(),
+        status: rpStatus(test.status),
+    });
+}
+
 async function finishStepItem(step) {
     if (!step) return;
 
@@ -88,7 +99,7 @@ async function finishStepItem(step) {
 
     return rpClient.finishTestItem(step.tempId, {
         endTime: rpClient.helpers.now(),
-        status: rpStatus(step.status),
+        status: rpStatus(step.status) || STATUSES.PASSED,
     });
 }
 
@@ -169,6 +180,7 @@ module.exports = {
     getRPLink,
     writePRInfo,
     startTestItem,
+    finishTestItem,
     finishStepItem,
     logCurrent,
     rpStatus,
