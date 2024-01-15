@@ -12,11 +12,11 @@ const {
 const {STATUSES} = require("./constants/statuses");
 const {TEST_ITEM_TYPES} = require("./constants/testItemTypes");
 const {LOG_LEVELS} = require("./constants/logLevels");
-const {LAUNCH_MODES} = require("./constants/launchModes");
 const {
     startLaunch, getRPLink, writePRInfo, startTestItem, logCurrent, rpStatus, finishStepItem, sendLogToRP,
     attachScreenshot, finishLaunch
 } = require("./helpers/rpHelpers");
+const {finishTestItem} = require("./helpers/rpHelpers");
 
 const helpers = container.helpers();
 let helper;
@@ -56,196 +56,52 @@ module.exports = (config) => {
     let launchObj;
     let suiteObj;
     let testObj;
-    let stepObj;
-    let failedStep;
-    let rpClient;
-
-    let suiteStatus = STATUSES.PASSED;
     let launchStatus = STATUSES.PASSED;
     let currentMetaSteps = [];
     let suiteArr = new Set();
     let testArr = [];
+    let testResults = {
+        suites: [],
+        tests: {
+            passed: [],
+            failed: [],
+            skipped: []
+        }
+    };
 
     let currenTestTitle;
     let currentSuiteTitle;
 
-    event.dispatcher.on(event.all.before, async () => {
-        if (!process.env.RUNS_WITH_WORKERS) {
-            launchObj = startLaunch(config);
-            try {
-                await launchObj.promise;
-                const launchId = (await launchObj.promise).id;
-                const launchLink = await getRPLink(config, launchId);
-                writePRInfo(launchLink, config);
-            } catch (err) {
-                output.error(`❌ Can't connect to ReportPortal, exiting...`);
-                output.error(err);
-                process.exit(1);
-            }
-            const outputLog = output.log;
-            const outputDebug = output.debug;
-            const outputError = output.error;
-
-            output.log = (message) => {
-                outputLog(message);
-                logCurrent({level: LOG_LEVELS.TRACE, message});
-            }
-
-            output.debug = (message) => {
-                outputDebug(message);
-                logCurrent({level: LOG_LEVELS.DEBUG, message});
-            }
-
-            output.error = (message) => {
-                outputError(message);
-                logCurrent({level: LOG_LEVELS.ERROR, message});
-            }
-        }
-    });
-
     event.dispatcher.on(event.suite.before, async (suite) => {
         await recorder.add(async () => {
-            if (!process.env.RUNS_WITH_WORKERS) {
-                suiteObj = await startTestItem(launchObj.tempId, suite.title, TEST_ITEM_TYPES.SUITE);
-                debug(`${suiteObj.tempId}: The suiteId '${suite.title}' is started.`);
-                suite.tempId = suiteObj.tempId;
-                suiteStatus = STATUSES.PASSED;
-            }
+            testResults.suites.push(suite);
         });
-    });
-
-    event.dispatcher.on(event.test.before, async (test) => {
-        await recorder.add(async () => {
-            if (!process.env.RUNS_WITH_WORKERS) {
-                currentMetaSteps = [];
-                stepObj = null;
-                testObj = await startTestItem(launchObj.tempId, test.title, TEST_ITEM_TYPES.TEST, suiteObj.tempId);
-                test.tempId = testObj.tempId;
-                failedStep = null;
-                debug(`${testObj.tempId}: The testId '${test.title}' is started.`);
-            }
-        })
-    });
-
-    event.dispatcher.on(event.step.before, async (step) => {
-        await recorder.add(async () => {
-            if (!process.env.RUNS_WITH_WORKERS) {
-                const parent = await startMetaSteps(step);
-                stepObj = await startTestItem(launchObj.tempId, step.toString().slice(0, 300), TEST_ITEM_TYPES.STEP, parent.tempId);
-                step.tempId = stepObj.tempId;
-            }
-        })
-    });
-
-    event.dispatcher.on(event.step.after, (step) => {
-        recorder.add(() => {
-            if (!process.env.RUNS_WITH_WORKERS) {
-                finishStep(step)
-            }
-        });
-    });
-
-    event.dispatcher.on(event.step.failed, (step) => {
-        if (!process.env.RUNS_WITH_WORKERS) {
-            for (const metaStep of currentMetaSteps) {
-                if (metaStep) metaStep.status = STATUSES.FAILED;
-            }
-            if (step && step.tempId) failedStep = Object.assign({}, step);
-        }
-    });
-
-    event.dispatcher.on(event.step.passed, (step, err) => {
-        if (!process.env.RUNS_WITH_WORKERS) {
-            for (const metaStep of currentMetaSteps) {
-                metaStep.status = STATUSES.PASSED;
-            }
-            failedStep = null;
-        }
     });
 
     event.dispatcher.on(event.test.failed, async (test, err) => {
-        if (!process.env.RUNS_WITH_WORKERS) {
-            launchStatus = STATUSES.FAILED;
-            suiteStatus = STATUSES.FAILED;
-
-            if (failedStep && failedStep.tempId) {
-                const step = failedStep;
-
-                debug(`Attaching screenshot & error to failed step`);
-
-                const screenshot = await attachScreenshot(helper, `${clearString(test.testTitle)}.failed.png`);
-
-                await rpClient.sendLog(step.tempId, {
-                    level: LOG_LEVELS.ERROR,
-                    message: `${err.stack}`,
-                    time: step.startTime,
-                }, screenshot).promise;
-
+        await recorder.add(async () => {
+            if (!process.env.RUNS_WITH_WORKERS) {
+                testResults.tests.failed.push(test);
             }
+        });
 
-            if (!test.tempId) return;
+    });
 
-            debug(`${test.tempId}: ${PREFIX_FAILED_TEST}: '${test.title}'`);
-
-            if (!failedStep) {
-                await rpClient.sendLog(test.tempId, {
-                    level: LOG_LEVELS.ERROR,
-                    message: `${err.stack}`,
-                }).promise;
+    event.dispatcher.on(event.test.passed, async (test) => {
+        await recorder.add(async () => {
+            if (!process.env.RUNS_WITH_WORKERS) {
+                testResults.tests.passed.push(test);
             }
-
-            rpClient.finishTestItem(test.tempId, {
-                endTime: test.endTime || rpClient.helpers.now(),
-                status: STATUSES.FAILED,
-                message: `${err.stack}`,
-            });
-        }
-    });
-
-    event.dispatcher.on(event.test.passed, (test) => {
-        if (!process.env.RUNS_WITH_WORKERS) {
-            debug(`${test.tempId}: Test '${test.title}' passed.`);
-            rpClient.finishTestItem(test.tempId, {
-                endTime: test.endTime || rpClient.helpers.now(),
-                status: STATUSES.PASSED,
-            });
-        }
-    });
-
-    event.dispatcher.on(event.test.after, (test) => {
-        if (!process.env.RUNS_WITH_WORKERS) {
-            recorder.add(async () => {
-                debug(`closing ${currentMetaSteps.length} metasteps for failed test`);
-                if (failedStep) await finishStep(failedStep);
-                await Promise.all(currentMetaSteps.reverse().map(m => finishStep(m)));
-                stepObj = null;
-                testObj = null;
-            });
-        }
-    });
-
-    event.dispatcher.on(event.suite.after, (suite) => {
-        if (!process.env.RUNS_WITH_WORKERS) {
-            recorder.add(async () => {
-                debug(`${suite.tempId}: Suite '${suite.title}' finished ${suiteStatus}.`);
-                return rpClient.finishTestItem(suite.tempId, {
-                    endTime: suite.endTime || rpClient.helpers.now(),
-                    status: rpStatus(suiteStatus)
-                });
-            });
-        }
+        });
     });
 
     event.dispatcher.on(event.all.result, async () => {
-        if (!process.env.RUNS_WITH_WORKERS) {
-            debug('Finishing launch...');
-            if (suiteObj) {
-                await rpClient.finishTestItem(suiteObj.tempId, {
-                    status: suiteStatus,
-                }).promise;
+        await recorder.add(async () => {
+            if (!process.env.RUNS_WITH_WORKERS) {
+                debug('Finishing launch...');
+                await _sendResultsToRP(testResults);
             }
-            await finishLaunch(launchObj, launchStatus);
-        }
+        });
     });
 
     event.dispatcher.on(event.workers.result, async (result) => {
@@ -255,15 +111,12 @@ module.exports = (config) => {
     });
 
     async function _sendResultsToRP(result) {
-        if (result) {
-            for (suite of result.suites) {
-                suiteArr.add(suite.title);
-            }
-            testArr = result.tests;
+        for (suite of result.suites) {
+            suiteArr.add(suite.title);
         }
+        testArr = result.tests;
 
         launchObj = await startLaunch(config);
-        await launchObj.promise;
         const launchId = (await launchObj.promise).id;
         const launchLink = await getRPLink(config, launchId);
         writePRInfo(launchLink, config);
@@ -273,7 +126,7 @@ module.exports = (config) => {
 
         for (suite of suiteArr) {
             suiteObj = await startTestItem(launchObj.tempId, suite, TEST_ITEM_TYPES.SUITE);
-            suiteObj.status = STATUSES.PASSED;
+            suiteObj.status = (testArr.failed.length > 0) ? STATUSES.FAILED : STATUSES.PASSED;
             suiteTempIdArr.push({
                 suiteTitle: suite,
                 suiteTempId: suiteObj.tempId,
@@ -282,58 +135,57 @@ module.exports = (config) => {
             await finishStepItem(suiteObj);
         }
 
-        if (process.env.RUNS_WITH_WORKERS) {
-            for (test of testArr.passed) {
-                currenTestTitle = test.title;
-                testObj = await startTestItem(launchObj.tempId, test.title, TEST_ITEM_TYPES.TEST, suiteTempIdArr.find((element) => element.suiteTitle === test.parent.title).suiteTempId, currentSuiteTitle);
-                testObj.status = STATUSES.PASSED;
 
-                testTempIdArr.push({
-                    testTitle: test.title,
-                    testTempId: testObj.tempId,
-                    testError: test.err,
-                    testSteps: test.steps,
-                });
+        for (test of testArr.passed) {
+            currenTestTitle = test.title;
+            testObj = await startTestItem(launchObj.tempId, test.title, TEST_ITEM_TYPES.TEST, suiteTempIdArr.find((element) => element.suiteTitle === test.parent.title).suiteTempId, currentSuiteTitle);
+            testObj.status = STATUSES.PASSED;
 
-                const message = `${PREFIX_PASSED_TEST} - ${test.title}`;
-                await sendLogToRP({tempId: testObj.tempId, level: LOG_LEVELS.INFO, message});
-                await finishStepItem(testObj);
-            }
+            testTempIdArr.push({
+                testTitle: test.title,
+                testTempId: testObj.tempId,
+                testError: test.err,
+                testSteps: test.steps,
+            });
 
-            for (test of testArr.failed) {
-                currenTestTitle = test.title;
-                testObj = await startTestItem(launchObj.tempId, test.title, TEST_ITEM_TYPES.TEST, suiteTempIdArr.find((element) => element.suiteTitle === test.parent.title).suiteTempId, currentSuiteTitle);
-                testObj.status = STATUSES.FAILED;
-                launchStatus = STATUSES.FAILED;
+            const message = `${PREFIX_PASSED_TEST} - ${test.title}`;
+            await sendLogToRP({tempId: testObj.tempId, level: LOG_LEVELS.INFO, message});
+            await finishTestItem(testObj);
+        }
 
-                testTempIdArr.push({
-                    testTitle: test.title,
-                    testTempId: testObj.tempId,
-                    testError: test.err,
-                    testSteps: test.steps,
-                });
+        for (test of testArr.failed) {
+            currenTestTitle = test.title;
+            testObj = await startTestItem(launchObj.tempId, test.title, TEST_ITEM_TYPES.TEST, suiteTempIdArr.find((element) => element.suiteTitle === test.parent.title).suiteTempId, currentSuiteTitle);
+            testObj.status = STATUSES.FAILED;
+            launchStatus = STATUSES.FAILED;
 
-                const message = `${PREFIX_FAILED_TEST} - ${test.title}\n${test.err.stack ? test.err.stack : JSON.stringify(test.err)}`;
-                await sendLogToRP({tempId: testObj.tempId, level: LOG_LEVELS.ERROR, message});
-                await finishStepItem(testObj);
-            }
+            testTempIdArr.push({
+                testTitle: test.title,
+                testTempId: testObj.tempId,
+                testError: test.err,
+                testSteps: test.steps,
+            });
 
-            for (test of testArr.skipped) {
-                currenTestTitle = test.title;
-                testObj = await startTestItem(launchObj.tempId, test.title, TEST_ITEM_TYPES.TEST, suiteTempIdArr.find((element) => element.suiteTitle === test.parent.title).suiteTempId, currentSuiteTitle);
-                testObj.status = STATUSES.SKIPPED;
+            const message = `${PREFIX_FAILED_TEST} - ${test.title}\n${test.err.stack ? test.err.stack : JSON.stringify(test.err)}`;
+            await sendLogToRP({tempId: testObj.tempId, level: LOG_LEVELS.ERROR, message});
+            await finishTestItem(testObj);
+        }
 
-                testTempIdArr.push({
-                    testTitle: test.title,
-                    testTempId: testObj.tempId,
-                    testError: test.err,
-                    testSteps: test.steps,
-                });
+        for (test of testArr.skipped) {
+            currenTestTitle = test.title;
+            testObj = await startTestItem(launchObj.tempId, test.title, TEST_ITEM_TYPES.TEST, suiteTempIdArr.find((element) => element.suiteTitle === test.parent.title).suiteTempId, currentSuiteTitle);
+            testObj.status = STATUSES.SKIPPED;
 
-                const message = `${PREFIX_SKIPPED_TEST} - ${test.title}`;
-                await sendLogToRP({tempId: testObj.tempId, level: LOG_LEVELS.INFO, message});
-                await finishStepItem(testObj);
-            }
+            testTempIdArr.push({
+                testTitle: test.title,
+                testTempId: testObj.tempId,
+                testError: test.err,
+                testSteps: test.steps,
+            });
+
+            const message = `${PREFIX_SKIPPED_TEST} - ${test.title}`;
+            await sendLogToRP({tempId: testObj.tempId, level: LOG_LEVELS.INFO, message});
+            await finishTestItem(testObj);
         }
 
         for (test of testTempIdArr) {
@@ -378,7 +230,7 @@ module.exports = (config) => {
         await finishLaunch(launchObj, launchStatus);
     }
 
-    async function startMetaSteps(step) {
+    async function startMetaSteps(step, parentTitle) {
         let metaStepObj = {};
         const metaSteps = metaStepsToArray(step.metaStep);
 
@@ -402,7 +254,7 @@ module.exports = (config) => {
             metaStepObj = currentMetaSteps[i - 1] || metaStepObj;
 
             const isNested = !!metaStepObj.tempId;
-            metaStepObj = startTestItem(launchObj.tempId, metaStep.toString(), rp_STEP, metaStepObj.tempId || testObj.tempId);
+            metaStepObj = startTestItem(launchObj.tempId, metaStep.toString(), TEST_ITEM_TYPES.STEP, metaStepObj.tempId || testObj.tempId, parentTitle);
             metaStep.tempId = metaStepObj.tempId;
             debug(`${metaStep.tempId}: The stepId '${metaStep.toString()}' is started. Nested: ${isNested}`);
         }
@@ -412,17 +264,13 @@ module.exports = (config) => {
     }
 
     function finishStep(step) {
-        if (!step) return;
         if (!step.tempId) {
             debug(`WARNING: '${step.toString()}' step can't be closed, it has no tempId`);
             return;
         }
         debug(`Finishing '${step.toString()}' step`);
 
-        return rpClient.finishTestItem(step.tempId, {
-            endTime: rpClient.helpers.now(),
-            status: rpStatus(step.status),
-        });
+        return finishStepItem(step);
     }
 
     return {
