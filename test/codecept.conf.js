@@ -36,8 +36,6 @@ exports.config = {
       launchAttributes: [{
         key: 'yourKey',
         value: 'yourValue',
-      }, {
-        key: 'platform', value: process.platform
       }],
       projectName: 'default_personal',
       rerun: false,

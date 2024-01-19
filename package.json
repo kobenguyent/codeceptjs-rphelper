@@ -41,9 +41,10 @@
     "axios": "1.6.2",
     "chai": "4.3.10",
     "joi": "17.11.0",
+    "lodash": "4.17.21",
     "mocha": "10.2.0",
     "playwright": "1.39.0",
-    "ts-node": "10.9.2",
-    "sleep-promise": "9.1.0"
+    "sleep-promise": "9.1.0",
+    "ts-node": "10.9.2"
   }
 }

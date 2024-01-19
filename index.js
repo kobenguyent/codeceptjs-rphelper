@@ -17,6 +17,8 @@ const {
     attachScreenshot, finishLaunch
 } = require("./helpers/rpHelpers");
 const {finishTestItem} = require("./helpers/rpHelpers");
+const { version } = require('./package.json');
+const deepMerge = require('lodash.merge');
 
 const helpers = container.helpers();
 let helper;
@@ -33,12 +35,13 @@ const defaultConfig = {
     projectName: '',
     launchName: 'codeceptjs tests',
     launchDescription: '',
-    attributes: [
-        {
-            key: 'agent',
-            value: 'codeceptjs-rphelper',
-        }
-    ],
+    launchAttributes: [{
+        key: 'platform',
+        value: process.platform
+    },{
+        key: 'rphelper-version',
+        value: version,
+    }],
     debug: false,
     rerun: undefined,
     enabled: false
@@ -47,7 +50,7 @@ const defaultConfig = {
 const requiredFields = ['projectName', 'token', 'endpoint'];
 
 module.exports = (config) => {
-    config = Object.assign(defaultConfig, config);
+    config = deepMerge(defaultConfig, config);
 
     for (let field of requiredFields) {
         if (!config[field]) throw new Error(`ReportPortal config is invalid. Key ${field} is missing in config.\nRequired fields: ${requiredFields} `)
