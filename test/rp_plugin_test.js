@@ -42,7 +42,10 @@ Scenario('Send failed results to RP @fail', () => {
 });
 
 Scenario('API tests with joi @api', async () => {
+    I.say('Getting the id');
     let id = createdUser['data']['id'];
+    I.say('Send delete request');
     await I.sendDeleteRequest(`/api/users/${id}`);
+    I.say('Assert the response');
     I.seeResponseMatchesJsonSchema(resSchemaForImporting);
 });
