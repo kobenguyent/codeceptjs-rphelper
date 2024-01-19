@@ -168,7 +168,7 @@ module.exports = (config) => {
 
             const message = `${PREFIX_FAILED_TEST} - ${test.title}\n${test.err.stack ? test.err.stack : JSON.stringify(test.err)}`;
             await sendLogToRP({tempId: testObj.tempId, level: LOG_LEVELS.ERROR, message});
-            await finishTestItem(testObj);
+            await finishTestItem(testObj, config.issue);
         }
 
         for (test of testArr.skipped) {

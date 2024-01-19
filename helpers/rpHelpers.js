@@ -81,15 +81,20 @@ async function startTestItem(launchId, testTitle, method, parentId = null, paren
     }
 }
 
-async function finishTestItem(test) {
+async function finishTestItem(test, issueObject) {
     if (!test) return;
 
     debug(`Finishing '${test.toString()}' Test`);
-
-    rpClient.finishTestItem(test.tempId, {
+    const testItemRQ = {
         endTime: rpClient.helpers.now(),
         status: rpStatus(test.status),
-    });
+    }
+
+    if (issueObject) {
+        testItemRQ.issue = issueObject;
+    }
+
+    rpClient.finishTestItem(test.tempId, testItemRQ);
 }
 
 async function finishStepItem(step) {
