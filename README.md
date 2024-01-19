@@ -55,6 +55,7 @@ To use this plugin you need to provide the following info:
 - `debug`: to turn on the debug for reportportal
 - `rerun`: to enable rerun
 - `rerunOf`: UUID of launch you want to rerun. If not specified, report portal will update the latest launch with the same name
+- `issue`: Test item issue object. issueType is required, allowable values: 'pb***', 'ab***', 'si***', 'ti***', 'nd001'. Where *** is locator id. More info: https://github.com/reportportal/client-javascript?tab=readme-ov-file#finishtestitem
 ```
 
 To show more logs: set `debug: true` in the configuration.
@@ -241,4 +242,4 @@ Success finish item with tempId ai1m1nxblq7zmzor {
 
 ## Video
 
-https://github.com/kobenguyent/codeceptjs-rphelper/assets/7845001/c006723c-044b-4a5a-ad82-ddf9a08a5787
+https://github.com/kobenguyent/codeceptjs-rphelper/assets/7845001/f2a84ed1-acae-46f7-a611-90345e0a43c9

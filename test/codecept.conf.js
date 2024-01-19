@@ -36,11 +36,17 @@ exports.config = {
       launchAttributes: [{
         key: 'yourKey',
         value: 'yourValue',
+      }, {
+        key: 'platform', value: process.platform
       }],
       projectName: 'default_personal',
       rerun: false,
       debug: true,
       enabled: true,
+      issue: {
+        issueType: 'pb001',
+        comment: 'found by automated tests',
+      }
     },
   },
   tests: './*_test.js',
