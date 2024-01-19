@@ -242,4 +242,4 @@ Success finish item with tempId ai1m1nxblq7zmzor {
 
 ## Video
 
-https://github.com/kobenguyent/codeceptjs-rphelper/assets/7845001/c006723c-044b-4a5a-ad82-ddf9a08a5787
+https://github.com/kobenguyent/codeceptjs-rphelper/assets/7845001/f2a84ed1-acae-46f7-a611-90345e0a43c9
