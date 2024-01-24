@@ -20,4 +20,5 @@ jobs:
       with:
         node-version: ${{ matrix.node-version }}
     - run: npm i && npx playwright install chromium
+    - run: npm run lint
     - run: npm test
