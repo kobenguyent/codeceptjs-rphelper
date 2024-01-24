@@ -23,9 +23,12 @@
   "scripts": {
     "acceptance_test": "mocha test/acceptance_test.js --timeout 50000",
     "bdd_acceptance_test": "mocha test/bdd_acceptance_test.js --timeout 50000",
-    "test": "npm run acceptance_test && npm run bdd_acceptance_test"
+    "test": "npm run acceptance_test && npm run bdd_acceptance_test",
+    "lint": "biome lint constants/*.js helpers/*.js index.js && biome format constants/*.js helpers/*.js index.js",
+    "lint:fix": "biome check constants/*.js helpers/*.js index.js --apply-unsafe && biome format constants/*.js helpers/*.js index.js --write"
   },
   "devDependencies": {
+    "@biomejs/biome": "1.5.3",
     "@faker-js/faker": "8.3.1",
     "@types/node": "20.10.5",
     "eslint": "6.6.0",
