@@ -58,7 +58,3 @@ For additional logs, set `debug: true` in the configuration.
 ## Video
 
 [View Example Video](https://github.com/kobenguyent/codeceptjs-rphelper/assets/7845001/f2a84ed1-acae-46f7-a611-90345e0a43c9)
-
----
-
-Feel free to further modify this template based on your preferences and additional information you'd like to provide.
