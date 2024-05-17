@@ -280,7 +280,11 @@ module.exports = (passedConfig) => {
 
 				if (stepObj.status === STATUSES.FAILED) {
 					let stepMessage;
-					if (step.err) {
+					if (step.test && step.test.err) {
+						stepMessage = `${PREFIX_BUG}: ${
+							JSON.stringify(step.test.err, null, 2)
+						}`;
+					} else if (step.err) {
 						stepMessage = `${PREFIX_BUG}: ${
 							step.err.stack ? step.err.stack : JSON.stringify(step.err)
 						}`;
