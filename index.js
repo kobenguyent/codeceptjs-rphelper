@@ -28,7 +28,7 @@ const {
 const { finishTestItem } = require('./helpers/rpHelpers');
 const { version } = require('./package.json');
 const deepMerge = require('lodash.merge');
-const logToFile = require("./helpers/logging");
+const logToFile = require('./helpers/logging');
 
 const helpers = container.helpers();
 let helper;
@@ -160,7 +160,8 @@ module.exports = (passedConfig) => {
 						suite,
 						TEST_ITEM_TYPES.SUITE,
 					);
-					suiteObj.status = testArr.failed.length > 0 ? STATUSES.FAILED : STATUSES.PASSED;
+					suiteObj.status =
+						testArr.failed.length > 0 ? STATUSES.FAILED : STATUSES.PASSED;
 					suiteTempIdArr.push({
 						suiteTitle: suite,
 						suiteTempId: suiteObj.tempId,
@@ -277,10 +278,12 @@ module.exports = (passedConfig) => {
 								: PREFIX_PASSED_STEP;
 						const stepTitle = stepArgs
 							? `${prefix}: ${step.actor} ${step.name} ${JSON.stringify(
-								stepArgs
-									.map((item) => (item?._secret ? '*****' : JSON.stringify(item)))
-									.join(' '),
-							)}`
+									stepArgs
+										.map((item) =>
+											item?._secret ? '*****' : JSON.stringify(item),
+										)
+										.join(' '),
+							  )}`
 							: `${prefix}: - ${step.actor} ${step.name}`;
 
 						await sleep(1);
@@ -293,7 +296,9 @@ module.exports = (passedConfig) => {
 						);
 
 						stepObj.status =
-							step.status === STATUSES.FAILED ? STATUSES.FAILED : STATUSES.PASSED;
+							step.status === STATUSES.FAILED
+								? STATUSES.FAILED
+								: STATUSES.PASSED;
 
 						if (stepObj.status === STATUSES.FAILED) {
 							let stepMessage;
@@ -345,10 +350,8 @@ module.exports = (passedConfig) => {
 				logToFile(`Could not start launch due to: ${e.message}`);
 			}
 		} catch (e) {
-			throw Error(`Could not start launch due to: ${e.message}`);
 			logToFile(`Could not start launch due to: ${e.message}`);
 		}
-
 	}
 
 	async function startMetaSteps(step, parentTitle) {
@@ -390,7 +393,9 @@ module.exports = (passedConfig) => {
 					metaStep.tempId
 				}: The stepId '${metaStep.toString()}' is started. Nested: ${isNested}`,
 			);
-			logToFile(`Metastep started: ${metaStep.toString()} - Nested: ${isNested}`);
+			logToFile(
+				`Metastep started: ${metaStep.toString()} - Nested: ${isNested}`,
+			);
 		}
 
 		currentMetaSteps = metaSteps;

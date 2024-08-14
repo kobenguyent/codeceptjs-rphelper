@@ -5,7 +5,7 @@ const { STATUSES } = require('../constants/statuses');
 const fs = require('fs');
 const path = require('path');
 const RestClient = require('./restClient');
-const logToFile = require("./logging");
+const logToFile = require('./logging');
 const debug = require('debug')('codeceptjs:reportportal');
 const restClient = new RestClient();
 const { output, event } = codeceptjs;
@@ -23,16 +23,15 @@ async function startLaunch(config, suiteTitle) {
 		logToFile(`Creating new RP Client: ${JSON.stringify(rpClient, null, 2)}`);
 
 		const launchObj = rpClient.startLaunch({
-				name: config.launchName || suiteTitle,
-				description: config.launchDescription,
-				attributes: config.launchAttributes,
-				rerun: config.rerun,
-				rerunOf: config.rerunOf,
-				mode: LAUNCH_MODES.DEFAULT,
-			});
+			name: config.launchName || suiteTitle,
+			description: config.launchDescription,
+			attributes: config.launchAttributes,
+			rerun: config.rerun,
+			rerunOf: config.rerunOf,
+			mode: LAUNCH_MODES.DEFAULT,
+		});
 		return launchObj;
 	} catch (e) {
-		throw Error(`Could not start launch due to: ${e.message}`);
 		logToFile(`Could not start launch due to: ${e.message}`);
 	}
 }
