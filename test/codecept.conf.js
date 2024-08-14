@@ -4,6 +4,8 @@ exports.config = {
     Playwright: {
       url: 'https://www.google.de/',
       show: false,
+      trace: true,
+      video: true
     },
     JSONResponse: {},
     REST: {

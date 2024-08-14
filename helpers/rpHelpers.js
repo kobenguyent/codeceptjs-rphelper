@@ -193,12 +193,32 @@ async function attachScreenshot(helper, fileName) {
 			return undefined;
 		}
 	} else {
-		content = fs.readFileSync(path.join(global.output_dir, fileName));
+		content = fs.readFileSync(path.resolve(global.output_dir, fileName));
 	}
 
 	return {
-		name: fileName,
+		name: 'failed_test.png',
 		type: 'image/png',
+		content,
+	};
+}
+
+async function attachVideo(fileName) {
+	const content = fs.readFileSync(path.resolve(global.output_dir, fileName));
+
+	return {
+		name: 'failed_test.webm',
+		type: 'video/webm',
+		content,
+	};
+}
+
+async function attachTrace(fileName) {
+	const content = fs.readFileSync(path.resolve(global.output_dir, fileName));
+
+	return {
+		name: 'trace.zip',
+		type: 'application/zip',
 		content,
 	};
 }
@@ -218,4 +238,6 @@ module.exports = {
 	sendLogToRP,
 	attachScreenshot,
 	finishLaunch,
+	attachVideo,
+	attachTrace,
 };

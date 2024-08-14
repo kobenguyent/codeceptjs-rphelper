@@ -24,6 +24,8 @@ const {
 	sendLogToRP,
 	attachScreenshot,
 	finishLaunch,
+	attachVideo,
+	attachTrace,
 } = require('./helpers/rpHelpers');
 const { finishTestItem } = require('./helpers/rpHelpers');
 const { version } = require('./package.json');
@@ -220,6 +222,7 @@ module.exports = (passedConfig) => {
 						testTempId: testObj.tempId,
 						testError: test.err,
 						testSteps: test.steps,
+						testArtifacts: test.artifacts,
 					});
 
 					const message = `${PREFIX_FAILED_TEST} - ${test.title}\n${
@@ -324,16 +327,50 @@ module.exports = (passedConfig) => {
 							});
 
 							if (helper) {
-								const screenshot = await attachScreenshot(
-									helper,
-									`${clearString(test.testTitle)}.failed.png`,
-								);
+								let screenshot;
+
+								if (test.testArtifacts?.screenshot) {
+									screenshot = await attachScreenshot(
+										helper,
+										test.testArtifacts.screenshot,
+									);
+								} else {
+									screenshot = await attachScreenshot(
+										helper,
+										`${clearString(test.testTitle)}.failed.png`,
+									);
+								}
+
 								await sendLogToRP({
 									tempId: stepObj.tempId,
 									level: LOG_LEVELS.DEBUG,
 									message: '📷 Last seen screenshot',
 									screenshotData: screenshot,
 								});
+
+								if (test.testArtifacts?.video) {
+									const recordedVideo = await attachVideo(
+										test.testArtifacts.video,
+									);
+
+									await sendLogToRP({
+										tempId: stepObj.tempId,
+										level: LOG_LEVELS.DEBUG,
+										message: '🎥 Last recorded video',
+										screenshotData: recordedVideo,
+									});
+								}
+
+								if (test.testArtifacts?.video) {
+									const trace = await attachTrace(test.testArtifacts.trace);
+
+									await sendLogToRP({
+										tempId: stepObj.tempId,
+										level: LOG_LEVELS.DEBUG,
+										message: '🕵 Trace',
+										screenshotData: trace,
+									});
+								}
 							}
 							logToFile(`Step failed: ${stepTitle} - Error: ${stepMessage}`);
 						} else {
